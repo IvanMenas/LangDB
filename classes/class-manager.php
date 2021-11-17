@@ -11,9 +11,10 @@ $dbm = new dbManager();
 try{
     $f = filterInput('f');
     switch ($f) {
-        case 'Test':
-            $r->d = $dbm->Test();
+        case 'Connect':
+            $r->d = $dbm->Connect();
     }
+	
 }catch  (Exception $ex){
 
 }
