@@ -1,5 +1,6 @@
 <?php
 require_once './dba-class.php';
+require_once './config.php';
 
 
 $r = new stdClass();
