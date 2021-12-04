@@ -7,9 +7,13 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link rel='stylesheet' type='text/css' media='screen' href='css/services.css'>
+<link rel='stylesheet' type='text/css' media='screen' href='css/sidebar.css'>
+<link rel='stylesheet' type='text/css' media='screen' href='css/transferStyle.css'>
+<link rel='stylesheet' type='text/css' media='screen' href='css/contacto.css'>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <style>
 body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .w3-bar,h1,button {font-family: "Montserrat", sans-serif}
@@ -21,84 +25,88 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <div class="w3-top">
   <div class="w3-bar w3-blue w3-card w3-left-align w3-large">
     <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
-    <a href="main.html" class="w3-bar-item w3-button w3-padding-large w3-white">Home</a>
+    <a href="main.html" class="w3-bar-item w3-button w3-padding-large w3-hover-white">Home</a>
     <a href="services.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Servicios</a>
     <a href="transfer.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Transferencias</a>
-<!-----<a href="transfer.html" class="w3-bar-item w3-button w3-padding-large">Consultar</a>----->
-    <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Contactenos</a>
-    <a href="config.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Configuración</a>
+    <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-white">Contactenos</a>
+    <a href="config.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Configuración </a>
     <p><a href="#" class="btn btn-info btn-lg" style="background-color: black; margin-left: 1000px;"> <span class="glyphicon glyphicon-log-out"></span> Log out</a></p> 
-    
-    
   </div>
 
-  <!-----------------------------------------------------Navbar on small screens----------------------------------------------------->
+  <!-----------------------------------------------------avbar on small screens----------------------------------------------------->
   <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large">
     <a href="main.html" class="w3-bar-item w3-button w3-padding-large">Home</a>
     <a href="services.html" class="w3-bar-item w3-button w3-padding-large">Servicios</a>
     <a href="transfer.html" class="w3-bar-item w3-button w3-padding-large">Transferencias</a>
-    
     <a href="contact.html" class="w3-bar-item w3-button w3-padding-large">Contactenos</a>
     <a href="config.html" class="w3-bar-item w3-button w3-padding-large">Configuración</a>
   </div>
 </div>
 
 <!-----------------------------------------------------Header----------------------------------------------------->
-<header class="w3-container w3-blue w3-center" style="padding:50px">
-  <h1 class="w3-margin w3-jumbo">BANKCR</h1>
-  <p class="w3-xlarge">Web Cliente Servidor</p>
+<header class="w3-container w3-blue w3-center" style="padding:40px ">
   
 </header>
 
 <!-----------------------------------------------------First Grid----------------------------------------------------->
- <!-------Primera Fila---------->
-<div class="w3-row-padding w3-padding-64 w3-container">
-  <h1 style="text-align: center;">Cuentas</h1>
-  <h2 style="text-align: center;">Usuario</h2>
+
+<div class="container" style="padding: 10px;">
+	<div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <div class="well well-sm">
+          <form class="form-horizontal" action="" method="post">
+          <fieldset>
+            <legend class="text-center">Contactenos</legend>
+    
+            <!-- Name input-->
+            <div class="form-group">
+              <label class="col-md-3 control-label" for="name">Nombre</label>
+              <div class="col-md-9">
+                <input id="name" name="name" type="text" placeholder="Nombre" class="form-control">
+              </div>
+            </div>
+    
+            <!-- Email input-->
+            <div class="form-group">
+              <label class="col-md-3 control-label" for="email"> E-mail</label>
+              <div class="col-md-9">
+                <input id="email" name="email" type="text" placeholder="Email" class="form-control">
+              </div>
+            </div>
+    
+            <!-- Message body -->
+            <div class="form-group">
+              <label class="col-md-3 control-label" for="message">Su mensaje</label>
+              <div class="col-md-9">
+                <textarea class="form-control" id="message" name="message" placeholder="Por favor ingrese su mensaje..." rows="5"></textarea>
+              </div>
+            </div>
+    
+            <!-- Form actions -->
+            <div class="form-group">
+              <div class="col-md-12 text-right">
+                <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+              </div>
+            </div>
+          </fieldset>
+          </form>
+        </div>
+      </div>
+	</div>
+</div>
+
+
+<!-----------------------------------------------------Second Grid----------------------------------------------------->
+
+<div class="w3-row-padding w3-light-grey w3-padding-64 w3-container">
   <div class="w3-content">
-
-    <div class="w3-third w3-right">
-      <br/>
-      <p class="w3-text-grey w3-margin-right w3-center">Saldo <br> 113,900.90 CRC </p>
-    </div>
-
     <div class="w3-third w3-center">
-      <br/>
-      <p class="w3-text-grey w3-margin-center w3-center">Descripción <br> CR-CUENTA BANCARIA</p>
+      <i class=" w3-padding-64 w3-text-red w3-margin-right"></i>
     </div>
-
-    <div class="w3-third w3-left">
-      <br/>
-      <p class="w3-text-grey w3-margin-left w3-center">Producto <br> CR123456891010</p>
+   <div class="w3-twothird">
     </div>
-  
-    <!-------Segunda Fila---------->
-    <div class="w3-third w3-right">
-      <br/>
-      <p class="w3-text-grey w3-margin-right w3-center">Saldo <br> 113,900.90 CRC </p>
-    </div>
-
-    <div class="w3-third w3-center">
-      <br/>
-      <p class="w3-text-grey w3-margin-center w3-center">Descripción <br> CR-CUENTA BANCARIA</p>
-    </div>
-
-    <div class="w3-third w3-left">
-      <br/>
-      <p class="w3-text-grey w3-margin-left w3-center">Producto <br>  CR123456891010</p>
-    </div>  
-  
-  
-  
   </div>
 </div>
-
-<!-----------------------------------------------------Second Grid--------------------------------------------------------->
-<div class="w3-row-padding w3-light-grey w3-padding-64 w3-container">
- 
-</div>
-
-
 
 <!-----------------------------------------------------Footer----------------------------------------------------->
 <footer class="w3-container w3-padding-64 w3-center w3-opacity">  

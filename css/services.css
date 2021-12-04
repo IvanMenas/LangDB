@@ -1,0 +1,41 @@
+.estilo{
+    
+  display: grid;
+  justify-content: center;
+  grid-template-columns: repeat(4,100px);
+  grid-column-gap:50px;
+  height: 280px;
+  text-align: center;
+
+}
+
+.estilo > button{
+  cursor: pointer;
+  font-size: 20px;
+  border: 2px solid black;
+  background-color: rgb(70, 61, 61);
+  text-align: center;
+  
+
+}
+
+.picture img{
+  max-width: 100px;
+
+}
+
+.picture{
+  display: -webkit-flex;
+  display: flex;
+  padding-top: 10px;
+  justify-content: center;
+
+}
+
+.body-services {
+  display: flex;
+  justify-content: center;
+  height: 400px;
+  background-color: white;
+  padding:10px;
+}
