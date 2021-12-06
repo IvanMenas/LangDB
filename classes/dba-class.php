@@ -25,12 +25,32 @@ class dbManager {
         }
     }
 
-    //Solo para guiarse a como hacer una query
-    // public function Select(){
-    //     $sql_stmt = $this-> conn  -> prepare("SELECT * FROM EMPLOYEES");
-    //     $sql_stmt->execute();
-    //     $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
-    //     return $result;
-    // }
+    public function loadUserAccount($iduser){
+        try{
+            $sql_stmt = $this-> conn  -> prepare(" 
+                SELECT * FROM CUENTA C
+                JOIN DIVISA  D
+                ON C.IDDIVISA = D.IDDIVISA
+                WHERE IDUSER = $iduser
+            ");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
+
+    
+    public function loadCompanies(){
+        try{
+            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM USUARIO");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
 }   
 ?>

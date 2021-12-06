@@ -14,6 +14,14 @@ try{
     switch ($f) {
         case 'Connect':
             $r->d = $dbm->Connect();
+			break;
+			
+        case 'loadUserAccount':
+            $r->d = $dbm->loadUserAccount(filterInput('iduser'));
+			break;
+		case 'loadCompanies':
+			$r->d = $dbm->loadCompanies();
+			break;
     }
 	
 }catch  (Exception $ex){
