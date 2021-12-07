@@ -49,6 +49,7 @@ function loadUserAccount(idUser){
 }
 
 function loadCompanies(){
+    console.log('test')
     $.post('classes/class-manager.php', {f: "loadCompanies"}, 
     function(response){
         companies = response.d
@@ -61,5 +62,46 @@ function loadCompanies(){
         if (!Array.isArray(companies)) { 
             return
         }
+        for (var i = 0; i < companies.length; i++) {
+            var company = companies[i];
+            console.log(company.IDEMPRESA)
+            $("#picHolder").append($("<div>").attr('id', 'service'+ company.IDEMPRESA));
+            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'pic'+ company.IDEMPRESA).append('<br>'));
+            $("#pic"+ company.IDEMPRESA).append($("<img>").attr('src', getServicePic(company.IDEMPRESA)).attr('height', '100').append('<br><br>'));
+            $("#service"+ company.IDEMPRESA).append($("<br>"));
+            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'tite'+ company.IDEMPRESA).attr('class', 'w3-bar-item w3-button  w3-blue').append(company.NOMBRE));
+        }
     });
+}
+
+function getServicePic(idServ){
+    var file;
+   switch(idServ){
+       case "1": 
+            file = "images/CCSS.png";
+       break;
+       case "2": 
+            file = "images/AYA.png";
+       break;
+       case "3": 
+            file = "images/ICE.png";
+       break;
+       case "4": 
+            file = "images/CNFL.jpg";
+       break;
+       case "5": 
+            file = "images/TIGO.png";
+       break;
+       case "6": 
+            file = "images/kolbi.png";
+        break;
+        case "7": 
+             file = "images/INS.png";
+        break;
+        case "8": 
+              file = "images/Cosevi.png";
+        break;
+   }
+
+   return file;
 }

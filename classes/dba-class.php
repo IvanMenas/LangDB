@@ -44,7 +44,7 @@ class dbManager {
     
     public function loadCompanies(){
         try{
-            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM USUARIO");
+            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM EMPRESA");
             $sql_stmt->execute();
             $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
