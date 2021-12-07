@@ -52,5 +52,16 @@ class dbManager {
             return "Error: " .$e->getMessage();
         }
     }
+
+    public function getDivisas(){
+        try{
+            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM DIVISA");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
 }   
 ?>

@@ -22,6 +22,9 @@ try{
 		case 'loadCompanies':
 			$r->d = $dbm->loadCompanies();
 			break;
+		case 'getDivisas':
+			$r->d = $dbm->getDivisas();
+			break;
     }
 	
 }catch  (Exception $ex){

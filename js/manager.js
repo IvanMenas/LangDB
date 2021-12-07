@@ -49,7 +49,6 @@ function loadUserAccount(idUser){
 }
 
 function loadCompanies(){
-    console.log('test')
     $.post('classes/class-manager.php', {f: "loadCompanies"}, 
     function(response){
         companies = response.d
@@ -104,4 +103,28 @@ function getServicePic(idServ){
    }
 
    return file;
+}
+
+function initNewAccountModal(){
+    $("#divisa").find('option').remove()
+    getDivisas();
+}
+function getDivisas(){
+    $.post('classes/class-manager.php', {f: "getDivisas"}, 
+    function(response){
+        divisas = response.d
+        console.log(response);
+
+        if(!divisas){
+            return;
+        }
+
+        if (!Array.isArray(divisas)) { 
+            return
+        }
+        for (var i = 0; i < divisas.length; i++) {
+            var divisa = divisas[i];
+            $("#divisa").append($("<option>").attr('id', 'service'+ divisa.IDDIVISA).append(divisa.NOMBRE));
+        }
+    });
 }

@@ -1,0 +1,12 @@
+.buttonPlus {
+    background-color: #2894f4;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 40;
+    margin: 4px 2px;
+    border-radius: 50%;
+    text-align: center;
+  }
