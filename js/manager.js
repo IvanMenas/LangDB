@@ -2,6 +2,7 @@
 const successCon = "Connection successful";
 var currentUser = {};
 
+//Init User and Home Page
 function init(){
     setUser()
     $.post('classes/class-manager.php', {f: "Connect"}, 
@@ -9,7 +10,7 @@ function init(){
         if (response.d != successCon){
             alert('Un error ha ocurrido! Inténtalo másn tarde!');
         }
-            loadUserAccount(currentUser.IDUSER); //Debe llenarse con el login
+        loadAccountGrid(currentUser.IDUSER); //Debe llenarse con el login
     });
 }
 
@@ -18,8 +19,9 @@ function setUser(){
     currentUser.USERNAME = 'admin';
     currentUser.PASSWORD = 'admin';
 }
-function loadUserAccount(idUser){ 
-    $("#accountGrid").find('div').remove()
+
+//Account grid
+function getUserAccount(idUser){
     $.post('classes/class-manager.php', {f: "loadUserAccount", iduser: idUser}, 
     function(response){
         accounts = response.d;
@@ -31,7 +33,14 @@ function loadUserAccount(idUser){
         if (!Array.isArray(accounts)) { 
             return
         }
+        return accounts;
+    });
+}
 
+function loadAccountGrid(idUser){ 
+    accounts = getUserAccount(idUser);
+    setTimeout(() => {
+        console.log(accounts)
         for (var i = 0; i < accounts.length; i++) {
             var account = accounts[i];
             $("#accountGrid").append($("<div>").attr('id', 'saldo'+ account.IDCUENTA).attr('class', 'w3-third w3-right').append('<br>'));
@@ -51,64 +60,10 @@ function loadUserAccount(idUser){
             $("#desc"+ account.IDCUENTA).append($("<p>").attr('id', 'descP'+ account.IDCUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
             append('Descripción<br>'+descripcion));
         }
-    });
+    }, 1000);
 }
 
-function loadCompanies(){
-    $.post('classes/class-manager.php', {f: "loadCompanies"}, 
-    function(response){
-        companies = response.d
-
-        if(!companies){
-            return;
-        }
-
-        if (!Array.isArray(companies)) { 
-            return
-        }
-        for (var i = 0; i < companies.length; i++) {
-            var company = companies[i];
-            $("#picHolder").append($("<div>").attr('id', 'service'+ company.IDEMPRESA));
-            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'pic'+ company.IDEMPRESA).append('<br>'));
-            $("#pic"+ company.IDEMPRESA).append($("<img>").attr('src', getServicePic(company.IDEMPRESA)).attr('height', '100').append('<br><br>'));
-            $("#service"+ company.IDEMPRESA).append($("<br>"));
-            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'tite'+ company.IDEMPRESA).attr('class', 'w3-bar-item w3-button  w3-blue').append(company.NOMBRE));
-        }
-    });
-}
-
-function getServicePic(idServ){
-    var file;
-   switch(idServ){
-       case "1": 
-            file = "images/CCSS.png";
-       break;
-       case "2": 
-            file = "images/AYA.png";
-       break;
-       case "3": 
-            file = "images/ICE.png";
-       break;
-       case "4": 
-            file = "images/CNFL.jpg";
-       break;
-       case "5": 
-            file = "images/TIGO.png";
-       break;
-       case "6": 
-            file = "images/kolbi.png";
-        break;
-        case "7": 
-             file = "images/INS.png";
-        break;
-        case "8": 
-              file = "images/Cosevi.png";
-        break;
-   }
-
-   return file;
-}
-
+//Account Modals
 function initNewAccountModal(){
     $("#divisa").find('option').remove()
     getDivisas();
@@ -164,4 +119,61 @@ function removeAccount(){
         }
         alert(msg)
     }).done(loadUserAccount(currentUser.IDUSER));
+}
+
+//Services grid
+
+function loadCompanies(){
+    $.post('classes/class-manager.php', {f: "loadCompanies"}, 
+    function(response){
+        companies = response.d
+
+        if(!companies){
+            return;
+        }
+
+        if (!Array.isArray(companies)) { 
+            return
+        }
+        for (var i = 0; i < companies.length; i++) {
+            var company = companies[i];
+            $("#picHolder").append($("<div>").attr('id', 'service'+ company.IDEMPRESA));
+            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'pic'+ company.IDEMPRESA).append('<br>'));
+            $("#pic"+ company.IDEMPRESA).append($("<img>").attr('src', getServicePic(company.IDEMPRESA)).attr('height', '100').append('<br><br>'));
+            $("#service"+ company.IDEMPRESA).append($("<br>"));
+            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'tite'+ company.IDEMPRESA).attr('class', 'w3-bar-item w3-button  w3-blue').append(company.NOMBRE));
+        }
+    });
+}
+
+function getServicePic(idServ){
+    var file;
+   switch(idServ){
+       case "1": 
+            file = "images/CCSS.png";
+       break;
+       case "2": 
+            file = "images/AYA.png";
+       break;
+       case "3": 
+            file = "images/ICE.png";
+       break;
+       case "4": 
+            file = "images/CNFL.jpg";
+       break;
+       case "5": 
+            file = "images/TIGO.png";
+       break;
+       case "6": 
+            file = "images/kolbi.png";
+        break;
+        case "7": 
+             file = "images/INS.png";
+        break;
+        case "8": 
+              file = "images/Cosevi.png";
+        break;
+   }
+
+   return file;
 }
