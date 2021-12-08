@@ -4,8 +4,8 @@
       
     $config->pdoSQL = new stdClass();
     $config->pdoSQL->db = 'oci:dbname=XE';
-    $config->pdoSQL->user = 'admin';
-    $config->pdoSQL->pass = 'admin';
+    $config->pdoSQL->user = 'web';
+    $config->pdoSQL->pass = 'web';
   
 
 ?>

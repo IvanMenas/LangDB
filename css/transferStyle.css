@@ -4,7 +4,7 @@
   
   /* Style the body */
   body {
-    font-family: Arial;
+    
     margin: 0;
   }
   
@@ -19,9 +19,11 @@
   /* Create two unequal columns that sits next to each other */
   /* Sidebar/left column */
   .side {
-    flex: 30%;
+    flex: 10%;
     background-color: #2894f4;
     padding: 2px;
+    
+    
     
   }
   

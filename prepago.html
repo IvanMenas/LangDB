@@ -7,8 +7,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel='stylesheet' type='text/css' media='screen' href='css/services.css'>
 <link rel='stylesheet' type='text/css' media='screen' href='css/sidebar.css'>
-<link rel='stylesheet' type='text/css' media='screen' href='css/style.css'>
+<link rel='stylesheet' type='text/css' media='screen' href='css/transferStyle.css'>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -26,9 +27,9 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
     <a href="main.html" class="w3-bar-item w3-button w3-padding-large w3-hover-white">Home</a>
     <a href="services.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Servicios</a>
-    <a href="transferMenu.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Transferencias</a>
+    <a href="transferMenu.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-white">Transferencias</a>
     <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Contactenos</a>
-    <a href="config.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-white">Configuración</a>
+    <a href="config.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Configuración</a>
     <p><a href="login.html" class="btn btn-info btn-lg" style="background-color: white; margin-left: 1000px; color:#2894f4"> <span class="glyphicon glyphicon-log-out"></span> Log out</a></p> 
   </div>
 
@@ -48,33 +49,54 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 </header>
 
 <!-----------------------------------------------------First Grid----------------------------------------------------->
-<div class="w3-row-padding w3-padding-64 w3-container">
-  <div class="w3-content">
-    <div class="main">
-        <div class="card">
-            <div class="card-body">
-                
-                <h6 class="card-subtitle mb-2 text-muted">Nombre: </h6>
-                <p class="card-text">
-                    E-mail:  <br>
-               
-                </p>
-                  <table>
-                    <td>
-                        <a href="#" class="w3-bar-item w3-button  w3-green">Aceptar Cambios</a>
-                    </td>
-                    <td>
-                        <a href="config.html" class="w3-bar-item w3-button  w3-blue">Volver</a>   
-                    </td>   
-                </table>
+
+<div class="row">
+    <div class="side">
+        <div class="sidebar-wrapper">
+            <div class="sidebar" >
+                <div class="sidebar__logo" >
+                    
+                </div>
+                <ul class="sidebar__nav" >
+                    <br/>
+                    <li> <a href="postpago.html" style="color: black;" >PostPago</a> </li>
+                    <li class="active"> <a href="prepago.html" style="color: black;">Recargar</a> </li>
+                    
+                  </ul>
             </div>
         </div>
-    </div>  
-  </div>
+    </div>
+    <form method="post" class="main" style="background-color: white; padding-inline-start: 10px; "><h2>Recarga de Servicios Moviles</h2> 
+      <h3>Consultar</h3>  
+        <br/>
+      
+     <b> Número de Télefono:</b> <br/>
+      <input  type="text" style="width:180px;" placeholder="Número de Télefono"/><br />
+      <br/>
+
+      <b> Monto a Cargar(CRC):</b> <br/>
+      <input  type="text" style="width:180px;" placeholder="Monto a Cargar(CRC)"/><br />
+      <br/>
+
+    <a onclick="alert('¿Seguro que quieres proceder')" class="w3-bar-item w3-button w3-blue">Validar</a>
+
+    <td>
+        <a href="services.html" class="w3-bar-item w3-button  w3-gray">Volver</a>   
+    </td> 
+  
+      </form>
 </div>
 
-<!-----------------------------------------------------Second Grid--------------------------------------------------------->
-<div class="w3-row-padding w3-light-grey w3-padding-64 w3-container">    
+
+<!-----------------------------------------------------Second Grid----------------------------------------------------->
+<br/>
+<div class="w3-row-padding w3-light-grey w3-padding-64 w3-container">
+  <div class="w3-content">
+    <div class="w3-third w3-center">
+      <i class=" w3-padding-64 w3-text-red w3-margin-right"></i>
+    </div>
+   <div class="w3-twothird">
+    </div>
   </div>
 </div>
 

@@ -8,10 +8,11 @@ li:after {
 }
 
 li {
-    quotes: "«" "»";
+    quotes: "" "";
     color:black;
     font-size: large;
-    font-family: Arial, Helvetica, sans-serif;
+    
+    
 }
 
 .sidebar-wrapper {
@@ -58,6 +59,7 @@ li {
 .sidebar__nav li.active,
 .sidebar__nav li:hover {
     background-color: #F7F2FF;
+    
    
 }
 

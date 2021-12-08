@@ -29,7 +29,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <!-----<a href="transferMenu.html" class="w3-bar-item w3-button w3-padding-large">Consultar</a>----->
     <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Contactenos</a>
     <a href="config.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Configuración</a>
-    <a href="login.html" class="btn btn-info btn-lg" style="background-color: black; margin-left: 1000px;"> <span class="glyphicon glyphicon-log-out"></span> Log out</a>
+    <a href="login.html" class="btn btn-info btn-lg" style="background-color: white; margin-left: 1000px; color:#2894f4"> <span class="glyphicon glyphicon-log-out"></span> Log out</a>
   </div>
 
   <!-----------------------------------------------------Navbar on small screens----------------------------------------------------->
@@ -46,16 +46,14 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <!-----------------------------------------------------Header----------------------------------------------------->
 <header class="w3-container w3-blue w3-center" style="padding:50px">
   <h1 class="w3-margin w3-jumbo">BANKCR</h1>
-  <p class="w3-xlarge">Web Cliente Servidor</p>
-  
 </header>
 
 <!-----------------------------------------------------First Grid----------------------------------------------------->
  <!-------Primera Fila---------->
 <div class="w3-row-padding w3-padding-64 w3-container" id="accountHolder">
   <h1 style="text-align: center;">Cuentas 
-    <button class="buttonPlus" data-toggle="modal" data-target="#myModal" onclick="initNewAccountModal()">+</button>
-    <button class="buttonLess" data-toggle="modal" data-target="#removeModal" >-</button>
+    <button class="buttonPlus" data-toggle="modal" data-target="#myModal" onclick="initNewAccountModal()" style="padding-left: 10px; padding-right: 10px;">+</button>
+    <button class="buttonLess" data-toggle="modal" data-target="#removeModal"  style="padding-left: 13px; padding-right: 13px;" >-</button>
   </h1>
   <h2 style="text-align: center;">Usuario</h2>
   <div class="w3-content" id="accountGrid">
