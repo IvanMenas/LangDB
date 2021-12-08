@@ -113,7 +113,6 @@ function initNewAccountModal(){
     $("#divisa").find('option').remove()
     getDivisas();
 }
-
 function getDivisas(){
     $.post('classes/class-manager.php', {f: "getDivisas"}, 
     function(response){
