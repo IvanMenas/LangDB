@@ -27,6 +27,10 @@ try{
 			break;
 		case 'setAccount':
 			$r->d = $dbm->setAccount(filterInput('iduser'),filterInput('idIBAN'),filterInput('idDivisa'),filterInput('credito'));
+			break;
+		case 'removeAccount':
+			$r->d = $dbm->removeAccount(filterInput('idIBAN'));
+			break;
 		break;
     }
 	

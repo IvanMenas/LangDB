@@ -53,7 +53,10 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <!-----------------------------------------------------First Grid----------------------------------------------------->
  <!-------Primera Fila---------->
 <div class="w3-row-padding w3-padding-64 w3-container" id="accountHolder">
-  <h1 style="text-align: center;">Cuentas <button class="buttonPlus" data-toggle="modal" data-target="#myModal" onclick="initNewAccountModal()">+</button></h1>
+  <h1 style="text-align: center;">Cuentas 
+    <button class="buttonPlus" data-toggle="modal" data-target="#myModal" onclick="initNewAccountModal()">+</button>
+    <button class="buttonLess" data-toggle="modal" data-target="#removeModal" >-</button>
+  </h1>
   <h2 style="text-align: center;">Usuario</h2>
   <div class="w3-content" id="accountGrid">
   </div>
@@ -111,6 +114,40 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   </div>
 </div>
 
+
+<!-----------------------------------------------------Modal--------------------------------------------------------->
+<div id="removeModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Agregar cuenta</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" action="" method="post">
+          <fieldset>
+            <!-- IBAN input-->
+            <div class="form-group">
+              <label class="col-md-3 control-label" for="iban">IBAN</label>
+              <div class="col-md-9">
+                <input id="ibanRemove" name="iban" type="text" placeholder="IBAN" class="form-control">
+              </div>
+            </div>
+            <!-- Form actions -->
+            <div class="form-group">
+              <div class="col-md-12 text-right">
+                <button type="submit" data-dismiss="modal" class="btn btn-primary btn-lg" onclick="removeAccount()">Enviar</button>
+              </div>
+            </div>
+          </fieldset>
+          </form>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-----------------------------------------------------Footer----------------------------------------------------->
 <footer class="w3-container w3-padding-64 w3-center w3-opacity">  

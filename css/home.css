@@ -10,3 +10,16 @@
     border-radius: 50%;
     text-align: center;
   }
+
+  .buttonLess {
+    background-color: red;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 600;
+    margin: 4px 2px;
+    border-radius: 100%;
+    text-align: center;
+  }

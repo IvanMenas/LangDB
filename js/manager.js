@@ -113,6 +113,7 @@ function initNewAccountModal(){
     $("#divisa").find('option').remove()
     getDivisas();
 }
+
 function getDivisas(){
     $.post('classes/class-manager.php', {f: "getDivisas"}, 
     function(response){
@@ -141,10 +142,25 @@ function addNewAccount(){
     }
     $.post('classes/class-manager.php', {f: "setAccount", iduser: currentUser.IDUSER, idIBAN: idIBAN, idDivisa: idDivisa, credito: credito}, 
     function(response){
+        console.log(response)
         done = response.d;
         msg = "Nueva cuenta agregada";
         if(!done){
             msg = "Cuenta no pudo ser agregada";
+        }
+        alert(msg)
+    }).done(loadUserAccount(currentUser.IDUSER));
+}
+
+function removeAccount(){
+    idIBAN = document.getElementById('ibanRemove').value;
+    $.post('classes/class-manager.php', {f: "removeAccount", idIBAN: idIBAN}, 
+    function(response){
+        done = response.d;
+        console.log(response)
+        msg = "Cuenta eliminada";
+        if(!done){
+            msg = "Cuenta no pudo ser eliminada";
         }
         alert(msg)
     }).done(loadUserAccount(currentUser.IDUSER));

@@ -41,7 +41,6 @@ class dbManager {
         }
     }
 
-    
     public function loadCompanies(){
         try{
             $sql_stmt = $this-> conn  -> prepare("SELECT * FROM EMPRESA");
@@ -81,8 +80,8 @@ class dbManager {
             ($idCuenta, $iduser, '$idIBAN', $idDivisa, 150000, 85000, 65000, $credito, 0)
             ");
             $sql_stmt->execute();
-            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $result;
+            $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return "1";
         }catch(PDOException  $e){
             return "Error: " .$e->getMessage();
         }
@@ -94,6 +93,17 @@ class dbManager {
             $sql_stmt->execute();
             $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
+    
+    public function removeAccount($idIBAN){
+        try{
+            $sql_stmt = $this-> conn  -> prepare("DELETE CUENTA WHERE IDBAN = '$idIBAN'");
+            $sql_stmt->execute();
+            $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return "1";
         }catch(PDOException  $e){
             return "Error: " .$e->getMessage();
         }
