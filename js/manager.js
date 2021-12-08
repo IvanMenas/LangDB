@@ -168,10 +168,10 @@ function getServicePic(idServ){
             file = "images/kolbi.png";
         break;
         case "7": 
-             file = "images/INS.png";
+             file = "images/claro.png";
         break;
         case "8": 
-              file = "images/Cosevi.png";
+              file = "images/movistar.png";
         break;
    }
 
