@@ -22,6 +22,12 @@ try{
 		case 'loadCompanies':
 			$r->d = $dbm->loadCompanies();
 			break;
+		case 'getDivisas':
+			$r->d = $dbm->getDivisas();
+			break;
+		case 'setAccount':
+			$r->d = $dbm->setAccount(filterInput('iduser'),filterInput('idIBAN'),filterInput('idDivisa'),filterInput('credito'));
+		break;
     }
 	
 }catch  (Exception $ex){

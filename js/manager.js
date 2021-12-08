@@ -1,22 +1,28 @@
 
 const successCon = "Connection successful";
+var currentUser = {};
 
 function init(){
+    setUser()
     $.post('classes/class-manager.php', {f: "Connect"}, 
     function(response){
-        console.log(response)
         if (response.d != successCon){
             alert('Un error ha ocurrido! Inténtalo másn tarde!');
         }
-        loadUserAccount(1); //Debe llenarse con el login
+            loadUserAccount(currentUser.IDUSER); //Debe llenarse con el login
     });
 }
 
+function setUser(){
+    currentUser.IDUSER = 1
+    currentUser.USERNAME = 'admin';
+    currentUser.PASSWORD = 'admin';
+}
 function loadUserAccount(idUser){ 
+    $("#accountGrid").find('div').remove()
     $.post('classes/class-manager.php', {f: "loadUserAccount", iduser: idUser}, 
     function(response){
-        accounts = response.d
-        console.log(response);
+        accounts = response.d;
 
         if(!accounts){
             return;
@@ -49,11 +55,9 @@ function loadUserAccount(idUser){
 }
 
 function loadCompanies(){
-    console.log('test')
     $.post('classes/class-manager.php', {f: "loadCompanies"}, 
     function(response){
         companies = response.d
-        console.log(response);
 
         if(!companies){
             return;
@@ -64,7 +68,6 @@ function loadCompanies(){
         }
         for (var i = 0; i < companies.length; i++) {
             var company = companies[i];
-            console.log(company.IDEMPRESA)
             $("#picHolder").append($("<div>").attr('id', 'service'+ company.IDEMPRESA));
             $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'pic'+ company.IDEMPRESA).append('<br>'));
             $("#pic"+ company.IDEMPRESA).append($("<img>").attr('src', getServicePic(company.IDEMPRESA)).attr('height', '100').append('<br><br>'));
@@ -104,4 +107,46 @@ function getServicePic(idServ){
    }
 
    return file;
+}
+
+function initNewAccountModal(){
+    $("#divisa").find('option').remove()
+    getDivisas();
+}
+
+function getDivisas(){
+    $.post('classes/class-manager.php', {f: "getDivisas"}, 
+    function(response){
+        divisas = response.d
+
+        if(!divisas){
+            return;
+        }
+
+        if (!Array.isArray(divisas)) { 
+            return
+        }
+        for (var i = 0; i < divisas.length; i++) {
+            var divisa = divisas[i];
+            $("#divisa").append($("<option>").attr('id', 'service'+ divisa.IDDIVISA).append(divisa.NOMBRE).attr('value', divisa.IDDIVISA));
+        }
+    });
+}
+
+function addNewAccount(){
+    idIBAN = document.getElementById('iban').value;
+    idDivisa = document.getElementById('divisa').value;
+    credito = 0;
+    if(document.getElementById('credito').value == 'on'){
+        credito = 1;
+    }
+    $.post('classes/class-manager.php', {f: "setAccount", iduser: currentUser.IDUSER, idIBAN: idIBAN, idDivisa: idDivisa, credito: credito}, 
+    function(response){
+        done = response.d;
+        msg = "Nueva cuenta agregada";
+        if(!done){
+            msg = "Cuenta no pudo ser agregada";
+        }
+        alert(msg)
+    }).done(loadUserAccount(currentUser.IDUSER));
 }

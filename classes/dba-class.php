@@ -52,5 +52,51 @@ class dbManager {
             return "Error: " .$e->getMessage();
         }
     }
+
+    public function getDivisas(){
+        try{
+            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM DIVISA");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
+
+    public function setAccount($iduser, $idIBAN, $idDivisa, $credito){
+        try{
+            $iduser = (int)$iduser;
+            $idDivisa = (int)$idDivisa;
+            $credito = (int)$credito;
+           
+            $sql_stmt = $this-> conn  -> prepare("SELECT MAX(IDCUENTA)+1  AS IDCUENTA FROM CUENTA");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            $idCuenta = (int)$result[0]['IDCUENTA'];
+            
+            $sql_stmt = $this-> conn  -> prepare("
+            INSERT INTO CUENTA(IDCUENTA, IDUSER, IDBAN, IDDIVISA, SALDOTOTAL, SALDOACTUAL, SALDORETENIDO, CREDITO, SISTEMAPAGO)
+            VALUES
+            ($idCuenta, $iduser, '$idIBAN', $idDivisa, 150000, 85000, 65000, $credito, 0)
+            ");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
+    
+    public function getLastAccountID(){
+        try{
+            $sql_stmt = $this-> conn  -> prepare("SELECT MAX(IDCUENTA)+1 FROM CUENTA");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
 }   
 ?>
