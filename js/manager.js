@@ -1,6 +1,5 @@
 
 const successCon = "Connection successful";
-var currentUser = {};
 
 //Init User and Home Page
 function init(){
@@ -10,14 +9,14 @@ function init(){
         if (response.d != successCon){
             alert('Un error ha ocurrido! Inténtalo másn tarde!');
         }
-        loadAccountGrid(currentUser.IDUSER); //Debe llenarse con el login
+        loadAccountGrid(localStorage.getItem('IDUSER')); //Debe llenarse con el login
     });
 }
 
 function setUser(){
-    currentUser.IDUSER = 1
-    currentUser.USERNAME = 'admin';
-    currentUser.PASSWORD = 'admin';
+    localStorage.setItem('IDUSER', 1);
+    localStorage.setItem('USERNAME', 'admin');
+    localStorage.setItem('PASSWORD', 'admin');
 }
 
 //Account grid
@@ -95,7 +94,7 @@ function addNewAccount(){
     if(document.getElementById('credito').value == 'on'){
         credito = 1;
     }
-    $.post('classes/class-manager.php', {f: "setAccount", iduser: currentUser.IDUSER, idIBAN: idIBAN, idDivisa: idDivisa, credito: credito}, 
+    $.post('classes/class-manager.php', {f: "setAccount", iduser: localStorage.getItem('IDUSER'), idIBAN: idIBAN, idDivisa: idDivisa, credito: credito}, 
     function(response){
         console.log(response)
         done = response.d;
@@ -104,7 +103,7 @@ function addNewAccount(){
             msg = "Cuenta no pudo ser agregada";
         }
         alert(msg)
-    }).done(loadUserAccount(currentUser.IDUSER));
+    }).done(loadUserAccount(localStorage.getItem('IDUSER')));
 }
 
 function removeAccount(){
@@ -118,12 +117,13 @@ function removeAccount(){
             msg = "Cuenta no pudo ser eliminada";
         }
         alert(msg)
-    }).done(loadUserAccount(currentUser.IDUSER));
+    }).done(loadUserAccount(localStorage.getItem('IDUSER')));
 }
 
 //Services grid
 
 function loadCompanies(){
+    console.log(localStorage.getItem('IDUSER'))
     $.post('classes/class-manager.php', {f: "loadCompanies"}, 
     function(response){
         companies = response.d
@@ -176,4 +176,24 @@ function getServicePic(idServ){
    }
 
    return file;
+}
+
+// Transfer
+
+//Sinpe
+
+function initSinpe(){
+    loadAccountCbb()
+}
+
+function loadAccountCbb(){ 
+    accounts = getUserAccount(1);
+    console.log(localStorage.getItem('IDUSER'))
+    setTimeout(() => {
+        console.log(accounts)
+        for (var i = 0; i < accounts.length; i++) {
+            var account = accounts[i];
+            $("#cbbAccount").append($("<option>").attr('id', 'service'+ account.IDCUENTA).append(account.IDBAN).attr('value', account.IDCUENTA));
+        }
+    }, 1000);
 }

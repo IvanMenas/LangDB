@@ -59,15 +59,28 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
                 </div>
                 <ul class="sidebar__nav" >
                     <li class="active"> <a href="#" style="color: black;" >A otros Bancos</a> </li>
-                    <li> <a href="sinpe.html" style="color: black;">SINPE Móvil</a> </li>
+                    <li> <a href="Transferencias/sinpe.html" style="color: black;">SINPE Móvil</a> </li>
                     <li> <a href="#" style="color: black;">Al mismo Banco</a> </li>
                   <!-----  <li> <a href="#" style="color: black;" >TEST2</a> </li> --->
                   </ul>
             </div>
         </div>
     </div>
-      <form method="post" class="main" style="background-color: white; padding-inline-start: 20px; ">
-          
+      <form method="post" class="main" style="background-color: white; padding-inline-start: 20px; "><h2>A otros Bancos</h2> 
+          <b>Cuenta Origen:</b>  <br />
+          <select style="font-size:Medium;width:296px;height:25px;"></select><br/>
+          <br/>
+         <b> Cuenta IBAN:</b> <br/>
+          <input  type="text" style="width:300px;"/><br />
+          <br/>
+          <b>Monto a Transferir:</b> <br/>
+          <input  type="text" style="width:150px;" placeholder="CRC"/><br />
+          <br/>
+          <b>Descripción(Opcional):</b><br />
+          <textarea rows="2" cols="20" style="height:64px;width:440px;" placeholder="Descripción" ></textarea><br/><br/>
+          <td>
+            <a onclick="alert('¿Seguro que quieres proceder')" class="w3-bar-item w3-button w3-blue">Validar</a>
+          </td>
     </form>
 </div>
 
