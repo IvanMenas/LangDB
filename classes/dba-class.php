@@ -108,5 +108,32 @@ class dbManager {
             return "Error: " .$e->getMessage();
         }
     }
+    
+    public function getTargetSinpeAccount($telefonoDestino){
+        try{
+            $telefonoDestino = (int)$telefonoDestino;
+            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM USUARIO_PERSONAL_INFO WHERE TELEFONO = $telefonoDestino");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
+
+    public function execSinpeMov($iduser, $idCuentaOrigen, $idCuentaDestino, $monto){
+        try{
+            $idCuentaOrigen = (int)$idCuentaOrigen;
+            $monto = (int)$monto;
+            $sql_stmt = $this-> conn  -> prepare("UPDATE CUENTA SET 
+                SALDOTOTAL = SALDOTOTAL - $monto  WHERE IDCUENTA = $idCuentaOrigen
+            ");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
 }   
 ?>

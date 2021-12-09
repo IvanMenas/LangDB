@@ -31,6 +31,12 @@ try{
 		case 'removeAccount':
 			$r->d = $dbm->removeAccount(filterInput('idIBAN'));
 			break;
+		case 'getTargetSinpeAccount':
+			$r->d = $dbm->getTargetSinpeAccount(filterInput('telefonoDestino'));
+			break;
+		case 'execSinpe':
+			$r->d = $dbm->execSinpeMov(filterInput('iduser'), filterInput('idCuentaOrigen'), filterInput('idCuentaDestino'), filterInput('monto'));
+			break;
 		break;
     }
 	

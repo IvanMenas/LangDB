@@ -37,6 +37,7 @@ function getUserAccount(idUser){
 }
 
 function loadAccountGrid(idUser){ 
+    $("#accountGrid").find('div').remove()
     accounts = getUserAccount(idUser);
     setTimeout(() => {
         console.log(accounts)
@@ -103,7 +104,7 @@ function addNewAccount(){
             msg = "Cuenta no pudo ser agregada";
         }
         alert(msg)
-    }).done(loadUserAccount(localStorage.getItem('IDUSER')));
+    }).done(loadAccountGrid(localStorage.getItem('IDUSER')));
 }
 
 function removeAccount(){
@@ -117,7 +118,7 @@ function removeAccount(){
             msg = "Cuenta no pudo ser eliminada";
         }
         alert(msg)
-    }).done(loadUserAccount(localStorage.getItem('IDUSER')));
+    }).done(loadAccountGrid(localStorage.getItem('IDUSER')));
 }
 
 //Services grid
@@ -206,7 +207,40 @@ function loadAccountCbb(){
         console.log(accounts)
         for (var i = 0; i < accounts.length; i++) {
             var account = accounts[i];
-            $("#cbbAccount").append($("<option>").attr('id', 'service'+ account.IDCUENTA).append(account.IDBAN).attr('value', account.IDCUENTA));
+            $("#cbbAccount").append($("<option>").attr('id', 'service'+ account.IDCUENTA).append(account.IDBAN + ' ' + account.NOMBRE).attr('value', account.IDCUENTA));
         }
     }, 1000);
+}
+
+function initSinpeMov(){
+    telefonoDestino = document.getElementById('telefono').value;
+    console.log(telefonoDestino)
+    $.post('classes/class-manager.php', {f: "getTargetSinpeAccount", telefonoDestino: telefonoDestino}, 
+    function(response){
+        targetAccount = response.d[0];
+        console.log(targetAccount);
+        
+        $("#dialog-confirm").dialog({resizable: false, height: 'auto', width: 400, modal: true, position: {my: 'center top', at: 'center top-25'}, closeOnEscape: true});
+		$("#dialog-confirm").dialog('option', 'title', 'Information');
+        $("#dialog-confirm").empty().append(`<p>Realizar Sinpe Movil a ` + targetAccount.NOMBRE + `  ` + targetAccount.APELLIDO +`</p>`);
+        $("#dialog-confirm").dialog('option', 'buttons', {
+            'Yes': function () {
+                execSinpeMov(targetAccount)
+            },
+            'No': function () {
+                $(this).dialog("close");
+                $("#dialog-confirm").dialog("destroy");
+            }
+        });
+    });
+}
+
+function execSinpeMov(idCuentaDestino){
+    monto = document.getElementById('monto').value;
+    $.post('classes/class-manager.php', {f: "execSinpe", iduser: localStorage.getItem('IDUSER'), idCuentaOrigen: 0, idCuentaDestino: idCuentaDestino, monto: monto}, 
+    function(response){
+        console.log(response)
+        done = response.d;
+        alert('Sinpe realizado')
+    });
 }
