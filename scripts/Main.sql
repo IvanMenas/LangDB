@@ -1,22 +1,138 @@
 -- Database Creation
 --------------------------------------------------------------------------------------------------------------------------------
 
--- Email Configuration on SQL+
+-- Email Configuration
 ----------------------------------------------------------
-CONN SYS/PASSWORD AS SYSDBA
-@$ORACLE_HOME/rdbms/admin/utlmail.sql
-@$ORACLE_HOME/rdbms/admin/prvtmail.plb
+--DECLARE
+--  l_acl_name         VARCHAR2(30) := 'utl_tcp.xml';
+--  l_ftp_server_ip    VARCHAR2(20) := 'smtp.gmail.com';
+--  l_ftp_server_name  VARCHAR2(20) := 'smtp.gmail.com';
+--  l_username         VARCHAR2(30) := 'ROOT';
+--BEGIN
+--  DBMS_NETWORK_ACL_ADMIN.create_acl (
+--    acl          => l_acl_name, 
+--    description  => 'Allow connections using UTL_TCP',
+--    principal    => l_username,
+--    is_grant     => TRUE, 
+--    privilege    => 'connect',
+--    start_date   => SYSTIMESTAMP,
+--    end_date     => NULL);
+--
+--  COMMIT;
+--
+--  DBMS_NETWORK_ACL_ADMIN.add_privilege ( 
+--    acl         => l_acl_name, 
+--    principal   => l_username,
+--    is_grant    => FALSE, 
+--    privilege   => 'connect', 
+--    position    => NULL, 
+--    start_date  => NULL,
+--    end_date    => NULL);
+--
+--  COMMIT;
+--
+--  DBMS_NETWORK_ACL_ADMIN.assign_acl (
+--    acl         => l_acl_name,
+--    host        => l_ftp_server_ip, 
+--    lower_port  => NULL,
+--    upper_port  => NULL);
+--
+--  DBMS_NETWORK_ACL_ADMIN.assign_acl (
+--    acl         => l_acl_name,
+--    host        => l_ftp_server_name, 
+--    lower_port  => NULL,
+--    upper_port  => NULL);
+--
+--  COMMIT;
+--END;
+--
+--GRANT EXECUTE, DEBUG ON SEND_MAIL_TEST to ROOT;
+--
+--create or replace noneditionable package SEND_MAIL_TEST
+--is
+--       procedure mail_test(
+--        msg_to in varchar2
+--       ,msg_subject in varchar2
+--       ,msg_text in varchar2
+--  );
+--end;
+--/
+--create or replace noneditionable package body SEND_MAIL_TEST
+--IS
+--procedure write_mime_header_test (
+--
+--      p_conn in out nocopy utl_smtp.connection
+--    , p_name in varchar2
+--    , p_value in varchar2
+--   )
+--   is
+--   begin
+--      utl_smtp.write_data ( p_conn
+--                          , p_name || ': ' || p_value || utl_tcp.crlf
+--      );
+--   end;
+--procedure mail_test(
+--  msg_to in varchar2
+-- ,msg_subject in varchar2
+-- ,msg_text in varchar2
+--  )
+--is
+--  mail_conn utl_smtp.connection;
+--  msg_from varchar2(50) := 'joemesoto@gmail.com';-----Type Your Gmail Email ID in encoded Format----
+--  mailhost VARCHAR2(50) := 'smtp.gmail.com';
+--  nls_charset    varchar2(255);
+--  g_mailer_id constant varchar2 (256) := 'Mailer by Oracle UTL_SMTP';
+--BEGIN
+--
+--  select value
+--      into   nls_charset
+--      from   nls_database_parameters
+--      where  parameter = 'NLS_CHARACTERSET';
+--  mail_conn := utl_smtp.open_connection(mailhost, 587,wallet_path => 'D:\App\admin\orcl\wallet'/*Your Wallet Path*/,wallet_password => 'Bl@ckie072701!'/* Your Wallet Password*/
+--  ,secure_connection_before_smtp => false);
+--  utl_smtp.ehlo(mail_conn,'smtp.gmail.com');
+--  utl_smtp.starttls(mail_conn);
+--  utl_smtp.command(mail_conn, 'AUTH LOGIN');
+--  utl_smtp.command(mail_conn, 'am9lbWVzb3RvQGdtYWlsLmNvbQ=='); --Type Your Gmail Email ID in encoded Format----
+--  utl_smtp.command(mail_conn, 'QmxAY2tpZTA3Mjch'); --Type Your Gmail Password in encoded Format------
+--  utl_smtp.command(mail_conn, 'MAIL FROM: <'||msg_from||'>');
+--  utl_smtp.command(mail_conn, 'RCPT TO: <'||msg_to||'>');
+--  utl_smtp.open_data (mail_conn);
+--  write_mime_header_test (mail_conn, 'From', msg_from);
+--  write_mime_header_test (mail_conn, 'To', msg_to);
+--  write_mime_header_test (mail_conn, 'Subject', msg_subject);
+--  write_mime_header_test (mail_conn, 'Content-Type', 'text/plain');
+--  write_mime_header_test (mail_conn, 'X-Mailer', g_mailer_id);
+--  utl_smtp.write_data (mail_conn, utl_tcp.crlf);
+--  utl_smtp.write_data (mail_conn, msg_text);
+--  utl_smtp.close_data (mail_conn);
+--  utl_smtp.quit (mail_conn);
+--  exception
+--      when others
+--      then
+--         begin
+--           utl_smtp.quit(mail_conn);
+--         exception
+--           when others then
+--             null;
+--         end;
+--         raise_application_error(-20000,'Failed to send mail due to the following error: ' || sqlerrm);
+--   end;
+--end;
+--/
+--
+--BEGIN
+--    SEND_MAIL_TEST.MAIL_TEST('joemesoto@gmail', 'Test', 'Test');
+--END;
+--
+--exec  SEND_MAIL_TEST.MAIL_TEST('joemesoto@gmail', 'Test', 'Test');
 
-
-ALTER SYSTEM SET smtp_out_server='localhost' SCOPE=SPFILE;
-
--- Table Creation
+-- Table Elimination | Creation | Insertion
 --------------------------------------------------------------------------------------------------------------------------------
-
 -- USUARIOS Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE USUARIOS';
+    EXECUTE IMMEDIATE 'DROP TABLE USUARIOS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -28,13 +144,58 @@ CREATE TABLE USUARIOS (
     ID_USER  NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
     USERNAME VARCHAR2(50),
     PASSWORD VARCHAR2(50),
-    INTENTOS NUMBER
+    INTENTOS NUMBER,
+    CONSTRAINT ID_USER_PK PRIMARY KEY (ID_USER)
 );
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('Joseph', 'Joseph', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('Ivan', 'Ivan', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('Allan', 'Allan', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('CCSS', 'admin', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('AYA', 'admin', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('ICE', 'admin', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('CNFL', 'admin', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('TIGO', 'admin', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('KOLBI', 'admin', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('INS', 'admin', 0);
+
+INSERT INTO USUARIOS(USERNAME, PASSWORD, INTENTOS)
+VALUES
+('COSEVI', 'admin', 0);
 
 -- DIVISAS Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE DIVISAS';
+    EXECUTE IMMEDIATE 'DROP TABLE DIVISAS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -43,17 +204,63 @@ EXCEPTION
 END;
 
 CREATE TABLE DIVISAS (
-    ID_DIVISA         NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    NOMBRE            VARCHAR2(30),
-    PRECIO_VENTA_DOLAR  FLOAT, -- Necesitamos esto??
-    PRECIO_COMPRA_DOLAR FLOAT, -- Necesitamos esto??
-    RESERVA_DOLAR      FLOAT -- Necesitamos esto??
+    ID_DIVISA     NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
+    NOMBRE        VARCHAR2(30),
+    PRECIO_VENTA  FLOAT,
+    PRECIO_COMPRA FLOAT,
+    CONSTRAINT ID_DIVISA_PK PRIMARY KEY (ID_DIVISA)
 );
+
+INSERT INTO DIVISAS(NOMBRE, PRECIO_VENTA, PRECIO_COMPRA)
+VALUES
+('Colones', 0.0016, 0.0018);
+
+INSERT INTO DIVISAS(NOMBRE, PRECIO_VENTA, PRECIO_COMPRA)
+VALUES
+('Dolar', 1, 1.2);
+
+INSERT INTO DIVISAS(NOMBRE, PRECIO_VENTA, PRECIO_COMPRA)
+VALUES
+('Euro', 1.13, 1.25);
+
+-- MOVIMIENTOS_DISPONIBLES Table
+----------------------------------------------------------
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE MOVIMIENTOS_DISPONIBLES CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE != -942 THEN
+            RAISE;
+        END IF;
+END;
+
+CREATE TABLE MOVIMIENTOS_DISPONIBLES (
+    ID_MOVIMIENTO  NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
+    SINPE_MOVIL    NUMBER(2),
+    SINPE          NUMBER(2),
+    CONSTRAINT ID_MOVIMIENTO_PK PRIMARY KEY (ID_MOVIMIENTO)
+);
+
+INSERT INTO MOVIMIENTOS_DISPONIBLES(SINPE_MOVIL, SINPE)
+VALUES
+(1, 1);
+
+INSERT INTO MOVIMIENTOS_DISPONIBLES(SINPE_MOVIL, SINPE)
+VALUES
+(1, 0);
+
+INSERT INTO MOVIMIENTOS_DISPONIBLES(SINPE_MOVIL, SINPE)
+VALUES
+(0, 1);
+
+INSERT INTO MOVIMIENTOS_DISPONIBLES(SINPE_MOVIL, SINPE)
+VALUES
+(0, 0);
 
 -- CUENTAS Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CUENTAS';
+    EXECUTE IMMEDIATE 'DROP TABLE CUENTAS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -63,25 +270,42 @@ END;
 
 CREATE TABLE CUENTAS (
     ID_CUENTA      NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    ID_USER        NUMBER, --Foreign Key
-    ID_DIVISA      NUMBER, --Foreign Key
+    ID_USER        NUMBER,
+    ID_DIVISA      NUMBER,
+    ID_MOVIMIENTO  NUMBER,
     IBAN           VARCHAR2(30),
     SALDO_TOTAL    FLOAT,
     SALDO_ACTUAL   FLOAT,
     SALDO_RETENIDO FLOAT,
     CREDITO        NUMBER(2),
-    CONSTRAINT FK_ID_USER
+    CONSTRAINT ID_CUENTA_PK PRIMARY KEY (ID_CUENTA),
+    CONSTRAINT CUENTAS_FK_ID_USER
     FOREIGN KEY (ID_USER)
     REFERENCES USUARIOS(ID_USER),
-    CONSTRAINT FK_ID_DIVISA
+    CONSTRAINT CUENTAS_FK_ID_DIVISA
     FOREIGN KEY (ID_DIVISA)
-    REFERENCES DIVISAS(ID_DIVISA)
+    REFERENCES DIVISAS(ID_DIVISA),
+    CONSTRAINT CUENTAS_FK_ID_MOVIMIENTO
+    FOREIGN KEY (ID_MOVIMIENTO)
+    REFERENCES MOVIMIENTOS_DISPONIBLES(ID_MOVIMIENTO)
 );
 
--- TIPO_CEDULA Table
+INSERT INTO CUENTAS(ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL, SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
+VALUES
+(1, 1, 1, 'CR123456891010', 150000, 85000, 65000, 0);
+
+INSERT INTO CUENTAS(ID_USER, ID_DIVISA, ID_MOVIMIENTO,  IBAN, SALDO_TOTAL, SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
+VALUES
+(2, 2, 2, 'CR12388999201', 800000, 5000, 75000, 0);
+
+INSERT INTO CUENTAS(ID_USER, ID_DIVISA, ID_MOVIMIENTO,  IBAN, SALDO_TOTAL, SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
+VALUES
+(3, 3, 3, 'CR123453445010', 10000000, 0, 65000, 1);
+
+-- TIPOS_CEDULAS Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE TIPO_CEDULA';
+    EXECUTE IMMEDIATE 'DROP TABLE TIPOS_CEDULAS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -89,16 +313,29 @@ EXCEPTION
         END IF;
 END;
 
-CREATE TABLE TIPO_CEDULA ( --QUE VERGAS ES ESTO??
-    ID_CEDULA NUMBER,
+CREATE TABLE TIPOS_CEDULAS (
+    ID_CEDULA NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
     DESCRIPCION    VARCHAR2(50),
-    PAIS_ORIGEN    VARCHAR2(20)
+    PAIS_ORIGEN    VARCHAR2(20),
+    CONSTRAINT ID_CEDULA_PK PRIMARY KEY (ID_CEDULA)
 );
+
+INSERT INTO TIPOS_CEDULAS(DESCRIPCION, PAIS_ORIGEN)
+VALUES
+('Costarricense', 'Costa Rica');
+
+INSERT INTO TIPOS_CEDULAS(DESCRIPCION, PAIS_ORIGEN)
+VALUES
+('Estadounidense', 'La United');
+
+INSERT INTO TIPOS_CEDULAS(DESCRIPCION, PAIS_ORIGEN)
+VALUES
+('Europeo', 'Europa XD');
 
 -- USUARIOS_INFO Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE USUARIOS_INFO';
+    EXECUTE IMMEDIATE 'DROP TABLE USUARIOS_INFO CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -108,50 +345,42 @@ END;
 
 CREATE TABLE USUARIOS_INFO (
     ID_USUARIO_INFO NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    ID_USER         NUMBER, --Foreign Key
-    ID_CEDULA  NUMBER, --Foreign Key
-    NOMBRE          VARCHAR2(20),
-    APELLIDO        VARCHAR2(20),
-    CEDULA          VARCHAR2(20),
-    TELEFONO        NUMBER, --Setearlo Unique
-    CORREO          VARCHAR2(20), --Setearlo Unique
-    DIRECCION       VARCHAR2(40),
+    ID_USER         NUMBER,
+    ID_CEDULA       NUMBER, --Creo que no es necesario, complica las cosas
+    NOMBRE          VARCHAR2(100),
+    APELLIDO        VARCHAR2(100),
+    CEDULA          VARCHAR2(100),
+    TELEFONO        NUMBER,
+    CORREO          VARCHAR2(100),
+    DIRECCION       VARCHAR2(100),
+    CONSTRAINT ID_USUARIO_INFO_PK PRIMARY KEY (ID_USUARIO_INFO),
     CONSTRAINT TELEFONO_UNIQUE UNIQUE (TELEFONO),
     CONSTRAINT CORREO_UNIQUE UNIQUE (CORREO),
-    CONSTRAINT FK_ID_USER
+    CONSTRAINT USUARIOS_INFO_FK_ID_USER
     FOREIGN KEY (ID_USER)
     REFERENCES USUARIOS(ID_USER),
-    CONSTRAINT FK_ID_TIPO_CEDULA
+    CONSTRAINT USUARIOS_INFO_FK_ID_TIPO_CEDULA
     FOREIGN KEY (ID_CEDULA)
-    REFERENCES TIPO_CEDULA(ID_CEDULA)
+    REFERENCES TIPOS_CEDULAS(ID_CEDULA)
 );
 
--- MOVIMIENTOS_DISPONIBLES Table
-----------------------------------------------------------
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE MOVIMIENTOS_DISPONIBLES';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
+INSERT INTO USUARIOS_INFO(ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION)
+VALUES
+(1, 1, 'Joseph', 'Mesen', '118180569', '87281936', 'joemesoto@gmail.com', 'Mikasa XD');
 
-CREATE TABLE MOVIMIENTOS_DISPONIBLES (
-    ID_MOVIMIENTOS NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    ID_CUENTA      NUMBER, --Foreign Key
-    SINPE_MOVIL    NUMBER(2),
-    SINPE          NUMBER(2),
-    DEPOSITO       NUMBER(2), --Que es?? Para Iban??
-    CONSTRAINT FK_ID_CUENTA
-    FOREIGN KEY (ID_CUENTA)
-    REFERENCES CUENTAS(ID_CUENTA)
-);
+INSERT INTO USUARIOS_INFO(ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION)
+VALUES
+(2, 2, 'Ivan', 'Pichanana', '118180568', '87281935', 'joemesoto@hotmail.com', 'En la avispa');
+
+INSERT INTO USUARIOS_INFO(ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION)
+VALUES
+(2, 2, 'Allan', 'Pichorta', '118180567', '87281934', 'joemesoto@outlook.com', 'En la pinga Joseph');
+
 
 -- EMPRESAS Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE EMPRESAS';
+    EXECUTE IMMEDIATE 'DROP TABLE EMPRESAS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -159,20 +388,53 @@ EXCEPTION
         END IF;
 END;
 
-CREATE TABLE EMPRESAS ( --De que nos sirve esto?? Un servicio deberia de estar linkeado a una empresa
+CREATE TABLE EMPRESAS (
     ID_EMPRESA  NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    ID_USER     NUMBER, --Foreign Key
+    ID_USER     NUMBER,
     NOMBRE      VARCHAR2(20),
     DESCRIPCION VARCHAR2(30),
-    CONSTRAINT FK_ID_USER
+    CONSTRAINT ID_EMPRESA_PK PRIMARY KEY (ID_EMPRESA),
+    CONSTRAINT EMPRESAS_FK_ID_USER
     FOREIGN KEY (ID_USER)
     REFERENCES USUARIOS(ID_USER)
 );
 
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(4, 'CCSS', 'Servicio de salud');
+
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(5, 'AYA', 'Servicio de agua');
+
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(6, 'ICE', 'Servicio de electricidad');
+
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(7, 'CCSS', 'Servicio de electricidad');
+
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(8, 'TIGO', 'Servicio de telecomunicaciones');
+
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(9, 'KOLBI', 'Servicio de telecomunicaciones');
+
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(10, 'INS', 'Servicio de seguros');
+
+INSERT INTO EMPRESAS(ID_USER, NOMBRE, DESCRIPCION)
+VALUES
+(11, 'COSEVI', 'Servicio de transporte');
+
 -- ESTADOS Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE ESTADOS';
+    EXECUTE IMMEDIATE 'DROP TABLE ESTADOS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -182,13 +444,26 @@ END;
 
 CREATE TABLE ESTADOS (
     ID_STATUS   NUMBER, --Incremental?? O vamos a usar codigos especificos?
-    DESCRIPCION VARCHAR2(30)
+    DESCRIPCION VARCHAR2(30),
+    CONSTRAINT ID_STATUS_PK PRIMARY KEY (ID_STATUS)
 );
+
+INSERT INTO ESTADOS(ID_STATUS, DESCRIPCION)
+VALUES
+(200, 'Exitoso');
+
+INSERT INTO ESTADOS(ID_STATUS, DESCRIPCION)
+VALUES
+(300, 'Pendiente');
+
+INSERT INTO ESTADOS(ID_STATUS, DESCRIPCION)
+VALUES
+(500, 'Error');
 
 -- HISTORIAL_TRANSACCIONES Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE HISTORIAL_TRANSACCIONES';
+    EXECUTE IMMEDIATE 'DROP TABLE HISTORIAL_TRANSACCIONES CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -198,45 +473,40 @@ END;
 
 CREATE TABLE HISTORIAL_TRANSACCIONES (
     ID_TRANSACCION    NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    ID_USER           NUMBER, --Foreign Key 
-    ID_CUENTA_ORIGEN  NUMBER, --Foreign Key ?
-    ID_CUENTA_DESTINO NUMBER, --Foreign Key ?
-    ID_STATUS         NUMBER, --Foreign Key
+    ID_USER           NUMBER,
+    ID_CUENTA_ORIGEN  NUMBER,
+    ID_CUENTA_DESTINO NUMBER,
+    ID_STATUS         NUMBER,
     MONTO             FLOAT,
     DESCRIPCION       VARCHAR2(30),
-    CONSTRAINT FK_ID_USER
+    CONSTRAINT ID_TRANSACCION_PK PRIMARY KEY (ID_TRANSACCION),
+    CONSTRAINT HISTORIAL_TRANSACCIONES_FK_ID_USER
     FOREIGN KEY (ID_USER)
     REFERENCES USUARIOS(ID_USER),
-    CONSTRAINT FK_ID_CUENTA_ORIGEN --No se si tiene que ser FK
+    CONSTRAINT HISTORIAL_TRANSACCIONES_FK_ID_CUENTA_ORIGEN
     FOREIGN KEY (ID_CUENTA_ORIGEN)
     REFERENCES CUENTAS(ID_CUENTA),
-    CONSTRAINT FK_ID_CUENTA_DESTINO --No se si tiene que ser FK
+    CONSTRAINT HISTORIAL_TRANSACCIONES_FK_ID_CUENTA_DESTINO
     FOREIGN KEY (ID_CUENTA_DESTINO)
     REFERENCES CUENTAS(ID_CUENTA)
 );
 
--- BALANCE Table
-----------------------------------------------------------
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE BALANCE';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
+INSERT INTO HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+VALUES
+(1, 1, 2, 300, 1000, 'Test 1');
 
-CREATE TABLE BALANCE ( -- QUE  ES ESTOOOOO???
-    IDBALANCE   NUMBER,
-    IDUSER      NUMBER,
-    TOTALACTIVO FLOAT,
-    TOTALPASIVO FLOAT
-);
+INSERT INTO HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+VALUES
+(2, 2, 2, 200, 2000, 'Test 2');
+
+INSERT INTO HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+VALUES
+(3, 3, 1, 300, 1000, 'Test 3');
 
 -- SERVICIOS Table
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE SERVICIOS';
+    EXECUTE IMMEDIATE 'DROP TABLE SERVICIOS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -244,15 +514,52 @@ EXCEPTION
         END IF;
 END;
 
-CREATE TABLE SERVICIOS ( -- Esto no es empresa??
-    ID_SERVICIOS NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    DESCRIPCION VARCHAR2(30)
+CREATE TABLE SERVICIOS (
+    ID_SERVICIO NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
+    ID_EMPRESA      NUMBER,
+    DESCRIPCION VARCHAR2(30),
+    CONSTRAINT ID_SERVICIO_PK PRIMARY KEY (ID_SERVICIO),
+    CONSTRAINT SERVICIOS_FK_ID_EMPRESA
+    FOREIGN KEY (ID_EMPRESA)
+    REFERENCES EMPRESAS(ID_EMPRESA)
 );
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(1, 'Servicio de salud');
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(2, 'Servicio de agua');
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(3, 'Servicio de electricidad');
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(4, 'Servicio de electricidad');
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(5, 'Servicio de telecomunicaciones');
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(6, 'Servicio de telecomunicaciones');
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(7, 'Servicio de seguros');
+
+INSERT INTO SERVICIOS(ID_EMPRESA, DESCRIPCION)
+VALUES
+(8, 'Servicio de transporte');
 
 -- FACTURAS
 ----------------------------------------------------------
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE FACTURAS';
+    EXECUTE IMMEDIATE 'DROP TABLE FACTURAS CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -262,24 +569,115 @@ END;
 
 CREATE TABLE FACTURAS (
     ID_FACTURA     NUMBER GENERATED BY DEFAULT ON NULL AS IDENTITY,
-    ID_TRANSACCION NUMBER, --Foreign Key
-    ID_SERVICIO    NUMBER, --Foreign Key
-    ID_STATUS      NUMBER, --Foreign Key?? Como hago para actualizarlo si es una Foreign Key?? || Por pagar, pagada
-    CONSTRAINT FK_ID_TRANSACCION
+    ID_TRANSACCION NUMBER,
+    ID_SERVICIO    NUMBER,
+    ID_STATUS      NUMBER,
+    CONSTRAINT ID_FACTURA_PK PRIMARY KEY (ID_FACTURA),
+    CONSTRAINT FACTURAS_FK_ID_TRANSACCION
     FOREIGN KEY (ID_TRANSACCION)
     REFERENCES HISTORIAL_TRANSACCIONES(ID_TRANSACCION),
-    CONSTRAINT FK_ID_SERVICIO
+    CONSTRAINT FACTURAS_FK_ID_SERVICIO
     FOREIGN KEY (ID_SERVICIO)
-    REFERENCES SERVICIOS(ID_SERVICIO),
-    CONSTRAINT FK_ID_STATUS --No se si tiene que ser FK || Creo que no tiene que ser FK
-    FOREIGN KEY (ID_STATUS)
-    REFERENCES ESTADOS(ID_STATUS)
+    REFERENCES SERVICIOS(ID_SERVICIO)
 );
+
+INSERT INTO FACTURAS(ID_TRANSACCION, ID_SERVICIO, ID_STATUS)
+VALUES
+(1, 1, 300);
+
+INSERT INTO FACTURAS(ID_TRANSACCION, ID_SERVICIO, ID_STATUS)
+VALUES
+(2, 1, 200);
+
+INSERT INTO FACTURAS(ID_TRANSACCION, ID_SERVICIO, ID_STATUS)
+VALUES
+(3, 1, 200);
+
+-- Functions Cursores mas validaciones
+--------------------------------------------------------------------------------------------------------------------------------
+-- name Function
+----------------------------------------------------------
+
+-- Cursors Querys que se repiten mucho
+--------------------------------------------------------------------------------------------------------------------------------
+-- name Cursor
+----------------------------------------------------------
 
 -- Stored Procedures
 --------------------------------------------------------------------------------------------------------------------------------
+-- AGREGAR_USUARIO Stored Procedure
+----------------------------------------------------------
+SET SERVEROUTPUT ON;
+CREATE OR REPLACE PROCEDURE AGREGAR_USUARIO (
+    P_USERNAME IN USUARIOS.USERNAME%TYPE,
+    P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
+    P_NOMBRE IN USUARIOS_INFO.NOMBRE%TYPE,
+    P_APELLIDO IN USUARIOS_INFO.APELLIDO%TYPE,
+    P_CEDULA IN USUARIOS_INFO.CEDULA%TYPE,
+    P_TELEFONO IN USUARIOS_INFO.TELEFONO%TYPE,
+    P_CORREO IN USUARIOS_INFO.CORREO%TYPE,
+    P_DIRECCION IN USUARIOS_INFO.DIRECCION%TYPE,
+    P_REPLY    OUT VARCHAR2
+) AS
+    V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+BEGIN
+    SELECT
+        ID_USER
+    INTO
+        V_ID_USER
+    FROM
+        USUARIOS
+    WHERE
+        USERNAME = P_USERNAME;
+        
+    IF V_ID_USER != 0 THEN
+        P_REPLY := 'Usuario ya existe';
+    END IF;
+        
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        INSERT INTO USUARIOS
+            (USERNAME, PASSWORD, INTENTOS)
+        VALUES
+            (P_USERNAME, P_PASSWORD, 0);
+            
+        SELECT
+            ID_USER
+        INTO
+            V_ID_USER
+        FROM
+            USUARIOS
+        WHERE
+                USERNAME = P_USERNAME
+            AND PASSWORD = P_PASSWORD;
+            
+        INSERT INTO USUARIOS_INFO
+            (ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION)
+        VALUES
+            (V_ID_USER, 1, P_NOMBRE, P_APELLIDO, P_CEDULA,  P_TELEFONO, P_CORREO, P_DIRECCION);
+        
+        P_REPLY := 'Usuario creado correctamente';
+END;
+
+DECLARE
+    -- PARAMETERS
+    P_USERNAME USUARIOS.USERNAME%TYPE := 'Chrisca';
+    P_PASSWORD USUARIOS.PASSWORD%TYPE := 'Chrisca';
+    P_NOMBRE USUARIOS_INFO.NOMBRE%TYPE := 'Chris';
+    P_APELLIDO USUARIOS_INFO.APELLIDO%TYPE := 'Pichanana';
+    P_CEDULA USUARIOS_INFO.CEDULA%TYPE := '118180566';
+    P_TELEFONO USUARIOS_INFO.TELEFONO%TYPE := '87281933';
+    P_CORREO USUARIOS_INFO.CORREO%TYPE := 'joemesoto@test.com';
+    P_DIRECCION USUARIOS_INFO.DIRECCION%TYPE := 'En la pinga Joseph';
+    P_REPLY VARCHAR2(100);
+BEGIN
+    AGREGAR_USUARIO(P_USERNAME, P_PASSWORD, P_NOMBRE, P_APELLIDO, P_CEDULA, P_TELEFONO, P_CORREO, P_DIRECCION, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+END;
+
 -- VALIDAR_SESION Stored Procedure
 ----------------------------------------------------------
+<<<<<<< Updated upstream
 CREATE OR REPLACE PROCEDURE LOGIN ( 
     P_USERNAME IN USUARIO.USERNAME%TYPE,
     P_PASSWORD IN USUARIO.PASSWORD%TYPE
@@ -295,9 +693,13 @@ execute  LOGIN('admin', 'admin');
 
 
 CREATE OR REPLACE PROCEDURE VALIDAR_SESION (
+=======
+SET SERVEROUTPUT ON;
+CREATE OR REPLACE PROCEDURE VALIDAR_SESION ( --Hay que actualizar los intentos
+>>>>>>> Stashed changes
     P_USERNAME IN USUARIOS.USERNAME%TYPE,
     P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
-    P_ID_USER  OUT NUMBER, --Esto lo pueden guardar en una cockie
+    P_ID_USER  OUT USUARIOS.ID_USER%TYPE,
     P_USUARIO_INFO OUT SYS_REFCURSOR,
     P_REPLY    OUT VARCHAR2
 ) AS
@@ -327,13 +729,46 @@ BEGIN
     ELSE
         P_ID_USER := V_ID_USER;
         P_REPLY := 'Bienvenido ' || P_USERNAME; --Podria hacer un SELECT para agarrar el nombre
-        OPEN P_USUARIO_INFO FOR SELECT * FROM USUARIOS_INFO WHERE ID_USER = P_ID_USER;
+        OPEN P_USUARIO_INFO FOR SELECT * FROM USUARIOS_INFO WHERE ID_USER = V_ID_USER;
     END IF;
+END;
 
+DECLARE
+    -- PARAMETERS
+    P_USERNAME USUARIOS.USERNAME%TYPE := 'Joseph';
+    P_PASSWORD USUARIOS.PASSWORD%TYPE := 'Joseph';
+    P_ID_USER USUARIOS.ID_USER%TYPE;
+    P_USUARIO_INFO SYS_REFCURSOR;
+    P_REPLY VARCHAR2(200);
+    -- CURSOR
+    ID_USUARIO_INFO USUARIOS_INFO.ID_USUARIO_INFO%TYPE;
+    ID_USER USUARIOS_INFO.ID_USER%TYPE;
+    ID_CEDULA USUARIOS_INFO.ID_CEDULA%TYPE;
+    NOMBRE USUARIOS_INFO.NOMBRE%TYPE;
+    APELLIDO USUARIOS_INFO.APELLIDO%TYPE;
+    CEDULA USUARIOS_INFO.CEDULA%TYPE;
+    TELEFONO USUARIOS_INFO.TELEFONO%TYPE;
+    CORREO USUARIOS_INFO.CORREO%TYPE;
+    DIRECCION USUARIOS_INFO.DIRECCION%TYPE;
+BEGIN
+    VALIDAR_SESION(P_USERNAME, P_PASSWORD, P_ID_USER, P_USUARIO_INFO, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_ID_USER);
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+    
+    LOOP
+        FETCH P_USUARIO_INFO 
+        INTO ID_USUARIO_INFO, ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION;
+        EXIT WHEN P_USUARIO_INFO%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_USUARIO_INFO || ID_USER || ID_CEDULA || NOMBRE || APELLIDO || CEDULA || TELEFONO  || CORREO || DIRECCION);
+    END LOOP;
+    
+    CLOSE P_USUARIO_INFO;
 END;
 
 -- EDITAR_INFORMACION_USUARIO Stored Procedure
 ----------------------------------------------------------
+SET SERVEROUTPUT ON;
 CREATE OR REPLACE PROCEDURE EDITAR_INFORMACION_USUARIO (
     P_ID_USER  IN USUARIOS.ID_USER%TYPE,
     P_TELEFONO IN USUARIOS_INFO.TELEFONO%TYPE,
@@ -346,7 +781,7 @@ BEGIN
         ID_USUARIO_INFO
     INTO V_ID_USUARIO_INFO
     FROM
-        ID_USUARIO_INFO
+        USUARIOS_INFO
     WHERE
         ID_USER = P_ID_USER;
 
@@ -365,14 +800,30 @@ BEGIN
 
 END;
 
+DECLARE
+    -- PARAMETERS
+    P_ID_USER USUARIOS_INFO.ID_USER%TYPE := 1;
+    P_TELEFONO USUARIOS_INFO.TELEFONO%TYPE := '88159923';
+    P_CORREO USUARIOS_INFO.CORREO%TYPE := 'joemesoto2@gmail.com';
+    P_REPLY VARCHAR2(200);
+BEGIN
+    EDITAR_INFORMACION_USUARIO(P_ID_USER, P_TELEFONO, P_CORREO, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+END;
+
+SELECT * FROM USUARIOS_INFO WHERE ID_USER = 1;
+
 -- CAMBIAR_PASSWORD Stored Procedure
 ----------------------------------------------------------
+SET SERVEROUTPUT ON;
 CREATE OR REPLACE PROCEDURE CAMBIAR_PASSWORD (
     P_ID_USER  IN USUARIOS.ID_USER%TYPE,
     P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
     P_REPLY    OUT VARCHAR2
 ) AS
     V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+    V_RANDOM_PASS VARCHAR2(200);
 BEGIN
     SELECT
         ID_USER
@@ -388,7 +839,7 @@ BEGIN
     ELSE
         UPDATE USUARIOS
         SET
-            PASSWORD = V_RANDOM_PASS
+            PASSWORD = P_PASSWORD
         WHERE
             ID_USER = V_ID_USER;
 
@@ -397,9 +848,22 @@ BEGIN
 
 END;
 
+DECLARE
+    -- PARAMETERS
+    P_ID_USER USUARIOS.ID_USER%TYPE := 1;
+    P_PASSWORD USUARIOS.PASSWORD%TYPE := 'JOSEPH';
+    P_REPLY VARCHAR2(200);
+BEGIN
+    CAMBIAR_PASSWORD(P_ID_USER, P_PASSWORD, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+END;
+
+SELECT * FROM USUARIOS WHERE ID_USER = 1;
+
 -- RECUPERAR_CUENTA Stored Procedure
 ----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE RECUPERAR_CUENTA (
+CREATE OR REPLACE PROCEDURE RECUPERAR_CUENTA ( --STILL IN PROGRESS NO ME SIRVE EL TRIPLEHIJUEPUTA
     P_CORREO   IN USUARIOS_INFO.CORREO%TYPE,
     P_REPLY    OUT VARCHAR2
 ) AS
@@ -414,7 +878,7 @@ BEGIN
         V_ID_USUARIO_INFO,
         V_ID_USER
     FROM
-        ID_USUARIO_INFO
+        USUARIOS_INFO
     WHERE
         CORREO = P_CORREO;
 
@@ -438,11 +902,22 @@ BEGIN
     END IF;
 END;
 
+DECLARE
+    -- PARAMETERS
+    P_CORREO USUARIOS_INFO.CORREO%TYPE := 'joemesoto@gmail.com';
+    P_REPLY VARCHAR2(200);
+BEGIN
+    RECUPERAR_CUENTA(P_CORREO, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+END;
+
 -- AGREGAR_CUENTA_BANCARIA Stored Procedure
 ----------------------------------------------------------
 CREATE OR REPLACE PROCEDURE AGREGAR_CUENTA_BANCARIA (
     P_ID_USER IN CUENTAS.ID_USER%TYPE,
     P_ID_DIVISA   IN CUENTAS.ID_DIVISA%TYPE,
+    P_ID_MOVIMIENTO  IN CUENTAS.ID_MOVIMIENTO%TYPE,
     P_IBAN   IN CUENTAS.IBAN%TYPE,
     P_SALDO_TOTAL   IN CUENTAS.SALDO_TOTAL%TYPE,
     P_SALDO_ACTUAL   IN CUENTAS.SALDO_ACTUAL%TYPE,
@@ -465,13 +940,32 @@ BEGIN
         P_REPLY := 'Usuario no existe';
     ELSE
         INSERT INTO CUENTAS
-            (ID_USER, ID_DIVISA, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
+            (ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
         VALUES
-            (P_ID_USER, P_ID_DIVISA, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
+            (P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
             
         P_REPLY := 'Tarjeta agregada correctamente';
     END IF;
 END;
+
+DECLARE
+    -- PARAMETERS
+    P_ID_USER CUENTAS.ID_USER%TYPE := 1;
+    P_ID_DIVISA CUENTAS.ID_DIVISA%TYPE  := 1;
+    P_ID_MOVIMIENTO CUENTAS.ID_MOVIMIENTO%TYPE  := 1;
+    P_IBAN   CUENTAS.IBAN%TYPE := 'CRTEST';
+    P_SALDO_TOTAL   CUENTAS.SALDO_TOTAL%TYPE := 0;
+    P_SALDO_ACTUAL   CUENTAS.SALDO_ACTUAL%TYPE := 0;
+    P_SALDO_RETENIDO   CUENTAS.SALDO_RETENIDO%TYPE := 0;
+    P_CREDITO    CUENTAS.CREDITO%TYPE := 1;
+    P_REPLY VARCHAR2(100);
+BEGIN
+    AGREGAR_CUENTA_BANCARIA(P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL, P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+END;
+
+SELECT * FROM CUENTAS WHERE ID_USER = 1;
 
 -- ELIMINAR_CUENTA_BANCARIA Stored Procedure
 ----------------------------------------------------------
@@ -503,6 +997,19 @@ BEGIN
     END IF;
 END;
 
+DECLARE
+    -- PARAMETERS
+    P_ID_CUENTA CUENTAS.ID_CUENTA%TYPE := 4;
+    P_REPLY VARCHAR2(100);
+BEGIN
+    ELIMINAR_CUENTA_BANCARIA(P_ID_CUENTA, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+END;
+
+SELECT * FROM CUENTAS WHERE ID_USER = 1;
+
+
 -- CARGAR_CUENTAS_BANCARIAS Stored Procedure
 ----------------------------------------------------------
 CREATE OR REPLACE PROCEDURE CARGAR_CUENTAS_BANCARIAS (
@@ -510,9 +1017,7 @@ CREATE OR REPLACE PROCEDURE CARGAR_CUENTAS_BANCARIAS (
     P_CUENTAS OUT SYS_REFCURSOR,
     P_REPLY OUT VARCHAR2
 ) AS
-    V_ID_USER
-CUENTAS.ID_USER%TYPE := 0;
-
+    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
 BEGIN
     SELECT
         ID_USER
@@ -520,7 +1025,8 @@ BEGIN
     FROM
         CUENTAS
     WHERE
-        ID_CUENTA = P_ID_CUENTA;
+        ID_USER = P_ID_USER
+    FETCH FIRST 1 ROWS ONLY;
 
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
@@ -533,7 +1039,37 @@ BEGIN
                                ID_USER = P_ID_USER;
 
     END IF;
+END;
 
+
+DECLARE
+    -- PARAMETERS
+    P_ID_USER CUENTAS.ID_USER%TYPE := 1;
+    P_CUENTAS SYS_REFCURSOR;
+    P_REPLY VARCHAR2(200);
+    -- CURSOR
+    ID_CUENTA CUENTAS.ID_CUENTA%TYPE;
+    ID_USER CUENTAS.ID_USER%TYPE;
+    ID_DIVISA CUENTAS.ID_DIVISA%TYPE;
+    ID_MOVIMIENTO CUENTAS.ID_MOVIMIENTO%TYPE;
+    IBAN CUENTAS.IBAN%TYPE;
+    SALDO_TOTAL CUENTAS.SALDO_TOTAL%TYPE;
+    SALDO_ACTUAL CUENTAS.SALDO_ACTUAL%TYPE;
+    SALDO_RETENIDO CUENTAS.SALDO_RETENIDO%TYPE;
+    CREDITO CUENTAS.CREDITO%TYPE;
+BEGIN
+    CARGAR_CUENTAS_BANCARIAS(P_ID_USER, P_CUENTAS, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+    
+    LOOP
+        FETCH P_CUENTAS 
+        INTO ID_CUENTA, ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL, SALDO_ACTUAL, SALDO_RETENIDO, CREDITO;
+        EXIT WHEN P_CUENTAS%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_CUENTA || ID_USER || ID_DIVISA || ID_MOVIMIENTO || IBAN || SALDO_TOTAL || SALDO_ACTUAL  || SALDO_RETENIDO || CREDITO);
+    END LOOP;
+    
+    CLOSE P_CUENTAS;  
 END;
 
 -- CARGAR_SERVICIOS Stored Procedure
@@ -542,17 +1078,36 @@ CREATE OR REPLACE PROCEDURE CARGAR_SERVICIOS (
     P_SERVICIOS OUT SYS_REFCURSOR
 ) AS
 BEGIN
-    OPEN P_CUENTAS FOR SELECT
+    OPEN P_SERVICIOS FOR SELECT
                            *
                        FROM
                            SERVICIOS;
-
 END;
 
--- CARGAR_CUENTAS_BANCARIAS Stored Procedure
+DECLARE
+    -- PARAMETERS
+    P_SERVICIOS SYS_REFCURSOR;
+    -- CURSOR
+    ID_SERVICIO SERVICIOS.ID_SERVICIO%TYPE;
+    ID_EMPRESA SERVICIOS.ID_EMPRESA%TYPE;
+    DESCRIPCION SERVICIOS.DESCRIPCION%TYPE;
+BEGIN
+    CARGAR_SERVICIOS(P_SERVICIOS);
+
+    LOOP
+        FETCH P_SERVICIOS 
+        INTO ID_SERVICIO, ID_EMPRESA, DESCRIPCION;
+        EXIT WHEN P_SERVICIOS%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_SERVICIO || ID_EMPRESA || DESCRIPCION);
+    END LOOP;
+    
+    CLOSE P_SERVICIOS;  
+END;
+
+-- VERIFICAR_FACTURA Stored Procedure
 ----------------------------------------------------------
 CREATE OR REPLACE PROCEDURE VERIFICAR_FACTURA (
-    P_ID_USER IN FACTURAS.ID_USER%TYPE,
+    P_ID_USER IN CUENTAS.ID_USER%TYPE,
     P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
     P_FACTURA OUT SYS_REFCURSOR, --No se que es lo que ocupa, si Factura, Transacccion? O las dos?
     P_REPLY OUT VARCHAR2
@@ -572,7 +1127,10 @@ BEGIN
     ELSE
     --TODO: Buscar facturas que tengan el status "pendiente" y que tengan el mismo ID_USER que el parametro
         OPEN P_FACTURA FOR SELECT
-                               *
+                               F.ID_FACTURA,
+                               F.ID_TRANSACCION,
+                               F.ID_SERVICIO,
+                               F.ID_STATUS
                            FROM
                                     FACTURAS F
                                INNER JOIN HISTORIAL_TRANSACCIONES HT --No se si ocupamos otra tabla solo de transacciones
@@ -580,15 +1138,39 @@ BEGIN
                            WHERE
                                    F.ID_SERVICIO = P_ID_SERVICIO
                                AND HT.ID_USER = P_ID_USER
-                               AND ID_STATUS = 5; --TODO: Setear un status de "Por Pagar"
-
+                               AND F.ID_STATUS = 300; --TODO: Setear un status de "Por Pagar"
     END IF;
+END;
 
+DECLARE
+    -- PARAMETERS
+    P_ID_USER CUENTAS.ID_USER%TYPE := 1;
+    P_ID_SERVICIO FACTURAS.ID_SERVICIO%TYPE := 1;
+    P_FACTURA SYS_REFCURSOR;
+    P_REPLY VARCHAR2(200);
+    -- CURSOR
+    ID_FACTURA FACTURAS.ID_FACTURA%TYPE;
+    ID_TRANSACCION FACTURAS.ID_TRANSACCION%TYPE;
+    ID_SERVICIO FACTURAS.ID_SERVICIO%TYPE;
+    ID_STATUS FACTURAS.ID_STATUS%TYPE;
+BEGIN
+    VERIFICAR_FACTURA(P_ID_USER, P_ID_SERVICIO, P_FACTURA, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+    
+    LOOP
+        FETCH P_FACTURA 
+        INTO ID_FACTURA, ID_TRANSACCION, ID_SERVICIO, ID_STATUS;
+        EXIT WHEN P_FACTURA%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_FACTURA || ID_TRANSACCION || ID_SERVICIO || ID_STATUS);
+    END LOOP;
+    
+    CLOSE P_FACTURA;  
 END;
 
 -- PAGAR_FACTURA Stored Procedure 
 ----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE PAGAR_FACTURA (
+CREATE OR REPLACE PROCEDURE PAGAR_FACTURA ( --Need to check parammeters
     P_ID_FACTURA IN FACTURAS.ID_FACTURA%TYPE,
     P_ID_USER IN FACTURAS.ID_USER%TYPE,
     P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
@@ -596,6 +1178,11 @@ CREATE OR REPLACE PROCEDURE PAGAR_FACTURA (
     P_REPLY OUT VARCHAR2
 ) AS
     V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+    V_ID_TRANSACCION FACTURAS.ID_TRANSACCION%TYPE;
+    V_SALDO_ACTUAL_ORIGEN CUENTAS.SALDO_ACTUAL%TYPE;
+    V_SALDO_ACTUAL_DESTINO CUENTAS.SALDO_ACTUAL%TYPE;
+    V_ID_CUENTA_ORIGEN CUENTAS.ID_CUENTA%TYPE;
+    V_ID_CUENTA_DESTINO CUENTAS.ID_CUENTA%TYPE;
 BEGIN
     SELECT --Hacer una funcion 
         ID_USER
@@ -608,20 +1195,72 @@ BEGIN
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSE
-    --Cambiar status de factura por 'pagado'
-UPDATE FACTURAS
-                SET
-            ID_STATUS = 5 --TODO: Setear un Status de pago || No se si por ser FK va a tirar error
+    --Get Factura Info
+        SELECT
+            ID_TRANSACCION
+        INTO V_ID_TRANSACCION
+        FROM
+            FACTURAS
         WHERE
-            ID_FACTURA = ID_FACTURA;
+            ID_FACTURA = P_ID_FACTURA;
     --Revisar que la persona a pagar tenga la plata
-        --Devolver con P_REPLY en caso de que no
-        --Rebajar monto de la persona que pago
-        --Agregar registor de transaccion
-    
-    --Agregar monto a la persona que le pagaron
-        --Agregar registor de transaccion
-        --TODO: Ocupo conectar servicios con empresa, o con un usuario para poder pagarle
+        SELECT --Hacer una funcion 
+            C1.SALDO_TOTAL,
+            C2.SALDO_TOTAL
+        INTO
+            V_SALDO_ACTUAL_ORIGEN,
+            V_SALDO_ACTUAL_DESTINO
+        FROM
+            HISTORIAL_TRANSACCIONES HT
+            INNER JOIN CUENTAS C1
+                 ON HT.ID_CUENTA_ORIGEN = C1.ID_CUENTA
+            INNER JOIN CUENTAS C2
+                 ON HT.ID_CUENTA_DESTINO = C2.ID_CUENTA
+        WHERE
+            ID_TRANSACCION = V_ID_TRANSACCION;
+            
+        IF V_SALDO_ACTUAL_ORIGEN > P_MONTO THEN
+            --Devolver con P_REPLY en caso de que no
+            P_REPLY := 'Usuario no tiene el monto disponible';
+        ELSE
+            SELECT
+                HT.ID_CUENTA_ORIGEN,
+                HT.ID_CUENTA_DESTINO
+            INTO
+                V_ID_CUENTA_ORIGEN,
+                V_ID_CUENTA_DESTINO
+            FROM
+                     FACTURAS F
+                INNER JOIN HISTORIAL_TRANSACCIONES HT
+                 ON F.ID_TRANSACCION = HT.ID_TRANSACCION
+            WHERE
+                F.ID_FACTURA = P_ID_FACTURA;
+                
+            --Rebajar monto de la persona que pago
+            UPDATE CUENTAS
+                        SET
+                    SALDO_TOTAL = V_SALDO_ACTUAL_ORIGEN - P_MONTO
+                WHERE
+                    ID_CUENTA = V_ID_CUENTA_ORIGEN;
+            
+            --Agregar registor de transaccion (Trigger)
+        
+            --Agregar monto a la persona que le pagaron
+            UPDATE CUENTAS
+                        SET
+                    SALDO_TOTAL = V_SALDO_ACTUAL_DESTINO + P_MONTO
+                WHERE
+                    ID_CUENTA = V_ID_CUENTA_DESTINO;
+            --Agregar registor de transaccion (Trigger)\
+            
+            --Cambiar status de factura por 'pagado'
+            UPDATE FACTURAS
+                            SET
+                        ID_STATUS = 200
+                    WHERE
+                        ID_FACTURA = ID_FACTURA;
+        END IF;
+
     END IF;
 
 END;
@@ -630,7 +1269,7 @@ END;
 ----------------------------------------------------------
 CREATE OR REPLACE PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
     P_ID_USER       IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
-    P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA%TYPE,
+    P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
     P_TRANSACCIONES OUT SYS_REFCURSOR,
     P_REPLY         OUT VARCHAR2
 ) AS
@@ -652,10 +1291,38 @@ BEGIN
                                  FROM
                                      HISTORIAL_TRANSACCIONES
                                  WHERE
-                                         ID_USER = P_ID_USER --Aca terngo que haver un JOIN miedo porque no me va a servir destino
-                                     AND ( ID_CUENTA_ORIGEN = P_ID_CUENTA
-                                           OR ID_CUENTA_DESTINO = P_ID_CUENTA );
+                                         ID_CUENTA_ORIGEN = P_ID_CUENTA
+                                     OR  ID_CUENTA_DESTINO = P_ID_CUENTA;
     END IF;
+END;
+
+DECLARE
+    -- PARAMETERS
+    P_ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE := 1;
+    P_ID_CUENTA HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE := 1;
+    P_TRANSACCIONES SYS_REFCURSOR;
+    P_REPLY VARCHAR2(200);
+    -- CURSOR
+    ID_TRANSACCION HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE;
+    ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE;
+    ID_CUENTA_ORIGEN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE;
+    ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE;
+    ID_STATUS HISTORIAL_TRANSACCIONES.ID_STATUS%TYPE;
+    MONTO HISTORIAL_TRANSACCIONES.MONTO%TYPE;
+    DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
+BEGIN
+    CARGAR_HISTORIAL_TRANSACCIONES(P_ID_USER, P_ID_CUENTA, P_TRANSACCIONES, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+    
+    LOOP
+        FETCH P_TRANSACCIONES 
+        INTO ID_TRANSACCION, ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION;
+        EXIT WHEN P_TRANSACCIONES%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_TRANSACCION || ID_USER || ID_CUENTA_ORIGEN || ID_CUENTA_DESTINO || ID_STATUS || MONTO || DESCRIPCION);
+    END LOOP;
+    
+    CLOSE P_TRANSACCIONES;  
 END;
 
 -- TRANSFERENCIA Stored Procedure 
@@ -713,8 +1380,8 @@ BEGIN
     WHERE
         ID_USER = P_ID_USER;
 
-    IF V_ID_USER = 0 THEN
-        P_REPLY := 'Usuario no existe';
+    IF V_ID_USER = 0
+    THEN P_REPLY := 'Usuario no existe';
     ELSE
     --Revisar que la persona a pagar tenga la plata
         --Devolver con P_REPLY en caso de que no
@@ -723,7 +1390,16 @@ BEGIN
     
     --Agregar monto a la persona que le pagaron
         --Agregar registor de transaccion
-    
-    END IF;
+     END IF;
 
 END;
+
+-- Triggers
+--------------------------------------------------------------------------------------------------------------------------------
+-- name Trigger
+----------------------------------------------------------
+
+-- Packages
+--------------------------------------------------------------------------------------------------------------------------------
+-- name Package
+----------------------------------------------------------
