@@ -24,21 +24,21 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <div class="w3-top">
   <div class="w3-bar w3-blue w3-card w3-left-align w3-large">
     <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
-    <a href="main.html" class="w3-bar-item w3-button w3-padding-large w3-hover-white">Home</a>
-    <a href="services.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-white">Servicios</a>
-    <a href="transfer.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Transferencias</a>
-    <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Contactenos</a>
-    <a href="config.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Configuración</a>
-    <p><a href="login.html" class="btn btn-info btn-lg" style="background-color: white; margin-left: 50%; color:#2894f4"> <span class="glyphicon glyphicon-log-out"></span> Log out</a></p> 
+    <a href="../main.html" class="w3-bar-item w3-button w3-padding-large w3-hover-white">Home</a>
+    <a href="../services.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Servicios</a>
+    <a href="../transferMenu.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-white">Transferencias</a>
+    <a href="../contact.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Contactenos</a>
+    <a href="../config.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Configuración</a>
+    <p><a href="#" class="btn btn-info btn-lg" style="background-color: black; margin-left: 50%;"> <span class="glyphicon glyphicon-log-out"></span> Log out</a></p> 
   </div>
 
   <!-----------------------------------------------------Navbar on small screens----------------------------------------------------->
   <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large">
-    <a href="main.html" class="w3-bar-item w3-button w3-padding-large">Home</a>
-    <a href="services.html" class="w3-bar-item w3-button w3-padding-large">Servicios</a>
-    <a href="transfer.html" class="w3-bar-item w3-button w3-padding-large">Transferencias</a>
-    <a href="contact.html" class="w3-bar-item w3-button w3-padding-large">Contactenos</a>
-    <a href="config.html" class="w3-bar-item w3-button w3-padding-large">Configuración</a>
+    <a href="../main.html" class="w3-bar-item w3-button w3-padding-large">Home</a>
+    <a href="../services.html" class="w3-bar-item w3-button w3-padding-large">Servicios</a>
+    <a href="../transferMenu.html" class="w3-bar-item w3-button w3-padding-large">Transferencias</a>
+    <a href="../contact.html" class="w3-bar-item w3-button w3-padding-large">Contactenos</a>
+    <a href="../config.html" class="w3-bar-item w3-button w3-padding-large">Configuración</a>
   </div>
 </div>
 
@@ -48,19 +48,38 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 
 <!-----------------------------------------------------First Grid----------------------------------------------------->
 
-
-    <form method="post" class="main" style="background-color: white; padding-inline-start: 50px; "><h2>Pago de Servicio</h2> 
-      <h3>Consultar</h3>  
-        <br/>
-      
-     <b> Ingrese Número de Cliente:</b> <br/>
-      <input  type="text" style="width:180px;" placeholder="Ingrese Número de Cliente"/><br />
+<div class="row">
+    <div class="side">
+        <div class="sidebar-wrapper">
+            <div class="sidebar">
+                <div class="sidebar__logo">
+                    <h3> Web Cliente Servidor </h3>
+                </div>
+                <ul class="sidebar__nav">
+                    <li> <a href="../transferMenu.html" style="color: black;">A otros Bancos</a> </li>
+                    <li class="active"> <a href="sinpe.html" style="color: black;">SINPE Móvil</a> </li>
+                    <li> <a href="#" style="color: black;">Al mismo Banco</a> </li>
+                    <!-----  <li> <a href="#" style="color: black;" >TEST2</a> </li> --->
+                </ul>
+               
+            </div>
+        </div>
+    </div>
+    <form method="post" class="main" style="background-color: white; padding-inline-start: 20px; "><h2>SINPE Móvil</h2> 
+      <b>Cuenta Origen:</b>  <br />
+      <select style="font-size:Medium;width:296px;height:25px;"></select><br/>
       <br/>
-    <a onclick="alert('¿Seguro que quieres proceder')" class="w3-bar-item w3-button w3-blue">Validar</a>
-
-    <td>
-        <a href="services.html" class="w3-bar-item w3-button  w3-gray">Volver</a>   
-    </td> 
+     <b> Número Telefónico:</b> <br/>
+      <input  type="text" style="width:150px;"/><br />
+      <br/>
+      <b>Monto a Transferir:</b> <br/>
+      <input  type="text" style="width:150px;" placeholder="CRC"/><br />
+      <br/>
+      <b>Descripción(Opcional):</b><br />
+      <textarea rows="2" cols="20" style="height:64px;width:440px;" placeholder="Descripción" ></textarea><br/><br/>
+      <td>
+        <a onclick="alert('¿Seguro que quieres proceder')" class="w3-bar-item w3-button w3-blue">Validar</a>
+    </td>
 
     </form>
 </div>

@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel='stylesheet' type='text/css' media='screen' href='css/loginStyle.css'>
+    <script src="./js/manager.js"></script>
     <title>Document</title>
 </head>
-<body style="background: #2894f4;">
+<body style="background: #2894f4;" onload="init()">
     <div class="wrapper fadeInDown">
         <div id="formContent">
           <!-- Tabs Titles -->
@@ -23,13 +26,10 @@
       
           <!-- Login Form -->
           <form>
-            <input type="text" id="login" class="fadeIn second" name="login" placeholder="Nombre de usuario">
-            <input type="password" id="password" class="fadeIn third" name="login" placeholder="Contraseña">
-            <a href="main.html">
-            <input type="button" class="fadeIn fourth" value="Ingresar">
+            <input type="text" id="username" class="fadeIn second" placeholder="Nombre de usuario">
+            <input type="password" id="password" class="fadeIn third"  placeholder="Contraseña">
+            <input type="button"  class="fadeIn fourth" onclick="validate()" value="Ingresar">
             </a>
-           
-            
           </form>
       
           <!-- Remind Passowrd -->

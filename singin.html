@@ -20,49 +20,50 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+    <script src="./js/manager.js"></script>
 
     </head>
     <body style="background: #2894f4;">
     <div class="signup-form">
-        <form action="/examples/actions/confirmation.php" method="post">
+        <form  method="post">
             <h2>Registrarse</h2>
             
             <hr>
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
-                    <input type="text" class="form-control" name="username" placeholder="Nombre" required="required" style="width: 100px;">
+                    <input type="text" class="form-control" name="username" id="name" placeholder="Nombre" required="required" style="width: 100px;">
 
                     <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
-                    <input type="text" class="form-control" name="username" placeholder="Apellidos" required="required">
+                    <input type="text" class="form-control" name="username" id="apellido" placeholder="Apellidos" required="required">
                 </div>
             </div>
             
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-id-card-o"></i></span>
-                    <input type="text" class="form-control" name="username" placeholder="Cédula" required="required">
+                    <input type="text" class="form-control" name="username" id="cedula" placeholder="Cédula" required="required">
                 </div>
             </div>
         
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                    <input type="text" class="form-control" name="username" placeholder="Username" required="required">
+                    <input type="text" class="form-control" name="username" id="username" placeholder="Username" required="required">
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-phone"></i></span>
-                    <input type="text" class="form-control" name="username" placeholder="Télefono" required="required">
+                    <input type="text" class="form-control" name="username" id="tel" placeholder="Télefono" required="required">
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-map-signs"></i></span>
-                    <input type="text" class="form-control" name="username" placeholder="Dirección" required="required">
+                    <input type="text" class="form-control" name="username"  id="direccion" placeholder="Dirección" required="required">
                 </div>
             </div>
 
@@ -70,14 +71,14 @@
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-paper-plane"></i></span>
-                    <input type="email" class="form-control" name="email" placeholder="Correo Electronico" required="required">
+                    <input type="email" class="form-control" name="email" id="email" placeholder="Correo Electronico" required="required">
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                    <input type="text" class="form-control" name="password" placeholder="Contraseña" required="required">
+                    <input type="text" class="form-control" name="password" id="password" placeholder="Contraseña" required="required">
                 </div>
             </div>
 
@@ -87,7 +88,7 @@
                         <i class="fa fa-lock"></i>
                         <i class="fa fa-check"></i>
                     </span>
-                    <input type="text" class="form-control" name="confirm_password" placeholder="Confirmar Contraseña" required="required">
+                    <input type="text" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirmar Contraseña" required="required">
                 </div>
             </div>
 
@@ -96,7 +97,7 @@
             </div>
 
             <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-lg">Registrarse</button>
+                <button type="submit" id="register" onclick="registrar()" class="btn btn-primary btn-lg">Registrarse</button>
             </div>
         </form>
         <div class="text-center"><b>¿Ya tienes una cuenta?</b> <a href="login.html">Iniciar Sesión</a></div>

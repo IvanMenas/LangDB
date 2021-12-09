@@ -3,20 +3,58 @@ const successCon = "Connection successful";
 
 //Init User and Home Page
 function init(){
-    setUser()
     $.post('classes/class-manager.php', {f: "Connect"}, 
     function(response){
         if (response.d != successCon){
-            alert('Un error ha ocurrido! Inténtalo másn tarde!');
+            alert('Un error ha ocurrido! Inténtalo más tarde!');
         }
-        loadAccountGrid(localStorage.getItem('IDUSER')); //Debe llenarse con el login
     });
 }
 
-function setUser(){
-    localStorage.setItem('IDUSER', 1);
-    localStorage.setItem('USERNAME', 'admin');
-    localStorage.setItem('PASSWORD', 'admin');
+//Login
+function validate(){
+    password = document.getElementById('password').value;
+    username = document.getElementById('username').value;
+    $.post('classes/class-manager.php', {f: "login", username: username,  password: password}, 
+    function(response){
+       if(response.d != "1"){
+            alert("Credenciales incorrectas")
+       }else{
+        window.location.href = "main.html";
+        setUser(response.d, username, password);
+       }
+    });
+}
+
+function setUser(iduser, username, password){
+    console.log(iduser)
+    localStorage.setItem('IDUSER', iduser);
+    localStorage.setItem('USERNAME', username);
+    localStorage.setItem('PASSWORD', password);
+}
+
+//Registrar
+function registrar(){
+    nombre = document.getElementById('name').value;
+    apellido = document.getElementById('apellido').value;
+    cedula = document.getElementById('cedula').value;
+    username = document.getElementById('username').value;
+    tel = document.getElementById('tel').value;
+    direccion = document.getElementById('direccion').value;
+    email = document.getElementById('email').value;
+    password = document.getElementById('password').value;
+    confirm_password = document.getElementById('confirm_password').value;
+
+    $.post('classes/class-manager.php', {f: "singup",name: nombre, lastname: apellido, id: cedula,  username: username, telefono: tel, direccion: direccion, email: email, password: password}, 
+    function(response){
+        if(response.d != "1"){
+            alert("No se pudo agregar usuario nuevo")
+        }else{
+            window.location.href = "login.html";
+            setUser(response.d, username, password);
+        }
+    });
+    // window.location.href = "main.html";
 }
 
 //Account grid
@@ -36,7 +74,9 @@ function getUserAccount(idUser){
     });
 }
 
-function loadAccountGrid(idUser){ 
+function loadAccountGrid(){ 
+    idUser = localStorage.getItem('IDUSER');
+    console.log(idUser)
     $("#accountGrid").find('div').remove()
     accounts = getUserAccount(idUser);
     setTimeout(() => {

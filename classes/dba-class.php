@@ -25,6 +25,25 @@ class dbManager {
         }
     }
 
+    public function login($username, $password){
+        try{
+            $out = 0;
+            $sql_stmt = $this-> conn  -> prepare("
+                CALL LOGIN('$username', '$password' , :out )
+            ");
+            $sql_stmt->bindParam(':out',$out,PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 40);
+
+            $sql_stmt->execute();
+            return $out;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
+
+    public function singup($name, $lastname, $id,  $username, $telefono, $direccion, $email, $password){
+
+    }
+
     public function loadUserAccount($iduser){
         try{
             $sql_stmt = $this-> conn  -> prepare(" 

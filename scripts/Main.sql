@@ -280,6 +280,20 @@ CREATE TABLE FACTURAS (
 --------------------------------------------------------------------------------------------------------------------------------
 -- VALIDAR_SESION Stored Procedure
 ----------------------------------------------------------
+CREATE OR REPLACE PROCEDURE LOGIN ( 
+    P_USERNAME IN USUARIO.USERNAME%TYPE,
+    P_PASSWORD IN USUARIO.PASSWORD%TYPE
+) AS
+BEGIN
+  SELECT IDUSER FROM USUARIO WHERE USERNAME = 'admin' AND PASSWORD = 'admin';
+END;
+
+
+
+execute  LOGIN('admin', 'admin');
+
+
+
 CREATE OR REPLACE PROCEDURE VALIDAR_SESION (
     P_USERNAME IN USUARIOS.USERNAME%TYPE,
     P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
