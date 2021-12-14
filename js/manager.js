@@ -179,13 +179,16 @@ function loadCompanies(){
         for (var i = 0; i < companies.length; i++) {
             var company = companies[i];
             info = getServiceInfo(company.IDEMPRESA);
-            test = myFunction();
             $("#picHolder").append($("<div>").attr('id', 'service'+ company.IDEMPRESA));
             $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'pic'+ company.IDEMPRESA).append('<br>'));
             $("#pic"+ company.IDEMPRESA).append($("<img>").attr('src', info.file).attr('height', '100').append('<br><br>'));
             $("#service"+ company.IDEMPRESA).append($("<br>"));
-            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'tite'+ company.IDEMPRESA).attr('class', 'w3-bar-item w3-button  w3-blue').append(company.NOMBRE));
-            
+            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'tite'+ company.IDEMPRESA)
+            .attr('class', 'w3-bar-item w3-button  w3-blue'));
+            $("#tite"+ company.IDEMPRESA).append($("<a>").attr('id', company.IDEMPRESA+info.form).css('color', 'white').attr('href', info.form).append(company.NOMBRE))
+            console.log(document.getElementById(company.IDEMPRESA+info.form))
+            console.log(info.form)
+            console.log(company.IDEMPRESA)
         }
     });
 }
@@ -217,7 +220,7 @@ function getServiceInfo(idServ){
        break;
        case "6": 
             info.file = "images/kolbi.png";
-            info.form = "Prepago.html";
+            info.form = "postPago.html";
         break;
         case "7": 
             info.file = "images/claro.png";
