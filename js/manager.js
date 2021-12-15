@@ -5,6 +5,7 @@ const successCon = "Connection successful";
 function init(){
     $.post('classes/class-manager.php', {f: "Connect"}, 
     function(response){
+        console.log(response)
         if (response.d != successCon){
             alert('Un error ha ocurrido! Inténtalo más tarde!');
         }
@@ -17,7 +18,8 @@ function validate(){
     username = document.getElementById('username').value;
     $.post('classes/class-manager.php', {f: "login", username: username,  password: password}, 
     function(response){
-       if(response.d != "1"){
+        console.log(response)
+       if(!response.d){
             alert("Credenciales incorrectas")
        }else{
         window.location.href = "main.html";

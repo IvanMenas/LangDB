@@ -29,7 +29,7 @@ class dbManager {
         try{
             $out = 0;
             $sql_stmt = $this-> conn  -> prepare("
-                CALL LOGIN('$username', '$password' , :out )
+            CALL VALIDAR_SESION('$username', '$password' , :out )
             ");
             $sql_stmt->bindParam(':out',$out,PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 40);
 
