@@ -56,7 +56,7 @@ class dbManager {
             return "Error: " .$e->getMessage();
         }
     } 
-}
+
 
     public function loadUserAccount($iduser){
         try{
