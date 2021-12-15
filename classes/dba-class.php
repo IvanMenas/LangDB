@@ -47,10 +47,9 @@ class dbManager {
     public function loadUserAccount($iduser){
         try{
             $sql_stmt = $this-> conn  -> prepare(" 
-                SELECT * FROM CUENTA C
-                JOIN DIVISA  D
-                ON C.IDDIVISA = D.IDDIVISA
-                WHERE IDUSER = $iduser
+                    SELECT * FROM CUENTAS C
+                    JOIN DIVISAS D ON C.ID_DIVISA = D.ID_DIVISA
+                    WHERE ID_USER = $iduser
             ");
             $sql_stmt->execute();
             $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -85,21 +85,21 @@ function loadAccountGrid(){
         console.log(accounts)
         for (var i = 0; i < accounts.length; i++) {
             var account = accounts[i];
-            $("#accountGrid").append($("<div>").attr('id', 'saldo'+ account.IDCUENTA).attr('class', 'w3-third w3-right').append('<br>'));
-            $("#saldo"+ account.IDCUENTA).append($("<p>").attr('id', 'saldoP'+ account.IDCUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
-            append('Saldo<br>'+account.SALDOACTUAL + ' ' + account.NOMBRE));
+            $("#accountGrid").append($("<div>").attr('id', 'saldo'+ account.ID_CUENTA).attr('class', 'w3-third w3-right').append('<br>'));
+            $("#saldo"+ account.ID_CUENTA).append($("<p>").attr('id', 'saldoP'+ account.ID_CUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
+            append('Saldo<br>'+account.SALDO_ACTUAL + ' ' + account.NOMBRE));
 
-            $("#accountGrid").append($("<div>").attr('id', 'prod'+ account.IDCUENTA).attr('class', 'w3-third w3-right').append('<br>'));
-            $("#prod"+ account.IDCUENTA).append($("<p>").attr('id', 'prodP'+ account.IDCUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
-            append('Producto<br>'+account.IDBAN));
+            $("#accountGrid").append($("<div>").attr('id', 'prod'+ account.ID_CUENTA).attr('class', 'w3-third w3-right').append('<br>'));
+            $("#prod"+ account.ID_CUENTA).append($("<p>").attr('id', 'prodP'+ account.ID_CUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
+            append('Producto<br>'+account.IBAN));
             
             var descripcion = 'CR-CUENTA CREDITICIA';
             if(account.CREDITO == 1){
                 descripcion = 'CR-CUENTA BANCARIA'
             }
 
-            $("#accountGrid").append($("<div>").attr('id', 'desc'+ account.IDCUENTA).attr('class', 'w3-third w3-right').append('<br>'));
-            $("#desc"+ account.IDCUENTA).append($("<p>").attr('id', 'descP'+ account.IDCUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
+            $("#accountGrid").append($("<div>").attr('id', 'desc'+ account.ID_CUENTA).attr('class', 'w3-third w3-right').append('<br>'));
+            $("#desc"+ account.ID_CUENTA).append($("<p>").attr('id', 'descP'+ account.ID_CUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
             append('Descripción<br>'+descripcion));
         }
     }, 1000);
