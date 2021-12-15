@@ -46,7 +46,7 @@ class dbManager {
             $out = "";
             
             $sql_stmt = $this-> conn  -> prepare("
-                CALL EDITAR_INFORMACION_USUARIO('$nombre', '$apellido', '$cedula',  '$username', $telefono, '$direccion', '$correo', '$password',:out)
+                CALL AGREGAR_USUARIO('$nombre', '$apellido', '$cedula',  '$username', $telefono, '$direccion', '$correo', '$password',:out)
             ");
             $sql_stmt->bindParam(':out',$out,PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 40);
 
@@ -55,7 +55,7 @@ class dbManager {
         }catch(PDOException  $e){
             return "Error: " .$e->getMessage();
         }
-    } 
+    }
 
 
     public function loadUserAccount($iduser){

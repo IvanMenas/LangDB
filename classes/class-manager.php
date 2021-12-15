@@ -18,9 +18,9 @@ try{
         case 'login':
             $r->d = $dbm->login(filterInput('username'), filterInput('password'));
 			break;
-        case 'singin':
-            $r->d = $dbm->singup(filterInput('name'), filterInput('lastname'), filterInput('id'), filterInput('username'), 
-			filterInput('telefono'), filterInput('direccion'), filterInput('email'), filterInput('password'));
+        case 'singup':
+            $r->d = $dbm->singup(filterInput('nombre'), filterInput('apellido'), filterInput('cedula'), filterInput('username'), 
+			filterInput('telefono'), filterInput('direccion'), filterInput('correo'), filterInput('password'));
 			break;
         case 'loadUserAccount':
             $r->d = $dbm->loadUserAccount(filterInput('iduser'));

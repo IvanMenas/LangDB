@@ -37,25 +37,30 @@ function setUser(iduser, username, password){
 
 //Registrar
 function registrar(){
-    nombre = document.getElementById('name').value;
+    msg = "";
+    nombre = document.getElementById('nombre').value;
     apellido = document.getElementById('apellido').value;
     cedula = document.getElementById('cedula').value;
     username = document.getElementById('username').value;
-    telefono= document.getElementById('tel').value;
+    telefono= document.getElementById('telefono').value;
     direccion = document.getElementById('direccion').value;
-    correo = document.getElementById('email').value;
+    correo = document.getElementById('correo').value;
     password = document.getElementById('password').value;
-    confirm_password = document.getElementById('confirm_password').value;
+    
 
-    $.post('classes/class-manager.php', {f: "singup",name: nombre, lastname: apellido, cedula: cedula,  username: username, telefono: telefono, direccion: direccion, correo: correo, password: password}, 
+    console.log(nombre)
+    $.post('classes/class-manager.php', {f: "singup",nombre: nombre, apellido: apellido, cedula: cedula,  username: username, telefono: telefono, direccion: direccion, correo: correo, password: password}, 
     function(response){
-        if(response.d != "1"){
+        console.log(response)
+        if(response.d == "0"){
             alert("No se pudo agregar usuario nuevo")
         }else{
+            msg='Cuenta Agregada'
             window.location.href = "login.html";
             setUser(response.d, username, password);
         }
-    });
+        alert(msg)
+    }).done();
     // window.location.href = "main.html";
 }
 
