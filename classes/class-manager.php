@@ -34,6 +34,9 @@ try{
 		case 'setAccount':
 			$r->d = $dbm->setAccount(filterInput('iduser'),filterInput('idIBAN'),filterInput('idDivisa'),filterInput('credito'));
 			break;
+		case 'EditProfile':
+			$r->d = $dbm->EditProfile(filterInput('iduser'),filterInput('telefono'),filterInput('correo'));
+			break;
 		case 'removeAccount':
 			$r->d = $dbm->removeAccount(filterInput('idIBAN'));
 			break;

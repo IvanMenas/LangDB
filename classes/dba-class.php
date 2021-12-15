@@ -40,9 +40,23 @@ class dbManager {
         }
     }
 
-    public function singup($name, $lastname, $id,  $username, $telefono, $direccion, $email, $password){
+    public function singup($nombre, $apellido, $cedula,  $username, $telefono, $direccion, $correo, $password){
+        try{
+            $telefono = (int)$telefono;
+            $out = "";
+            
+            $sql_stmt = $this-> conn  -> prepare("
+                CALL EDITAR_INFORMACION_USUARIO('$nombre', '$apellido', '$cedula',  '$username', $telefono, '$direccion', '$correo', '$password',:out)
+            ");
+            $sql_stmt->bindParam(':out',$out,PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 40);
 
-    }
+            $sql_stmt->execute();
+            return $out;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    } 
+}
 
     public function loadUserAccount($iduser){
         try{
@@ -102,7 +116,7 @@ class dbManager {
     
     public function getLastAccountID(){
         try{
-            $sql_stmt = $this-> conn  -> prepare("SELECT MAX(IDCUENTA)+1 FROM CUENTA");
+            $sql_stmt = $this-> conn  -> prepare("SELECT MAX(ID_CUENTA)+1 FROM CUENTAS");
             $sql_stmt->execute();
             $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
@@ -113,10 +127,15 @@ class dbManager {
     
     public function removeAccount($idIBAN){
         try{
-            $sql_stmt = $this-> conn  -> prepare("DELETE CUENTA WHERE IDBAN = '$idIBAN'");
+            $out = "";
+            
+            $sql_stmt = $this-> conn  -> prepare("
+                CALL ELIMINAR_CUENTA_BANCARIA('$idIBAN', :out)
+            ");
+            $sql_stmt->bindParam(':out',$out,PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 40);
+
             $sql_stmt->execute();
-            $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
-            return "1";
+            return $out;
         }catch(PDOException  $e){
             return "Error: " .$e->getMessage();
         }
@@ -125,7 +144,7 @@ class dbManager {
     public function getTargetSinpeAccount($telefonoDestino){
         try{
             $telefonoDestino = (int)$telefonoDestino;
-            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM USUARIO_PERSONAL_INFO WHERE TELEFONO = $telefonoDestino");
+            $sql_stmt = $this-> conn  -> prepare("SELECT * FROM USUARIO_INFO WHERE TELEFONO = $telefonoDestino");
             $sql_stmt->execute();
             $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
@@ -138,8 +157,8 @@ class dbManager {
         try{
             $idCuentaOrigen = (int)$idCuentaOrigen;
             $monto = (int)$monto;
-            $sql_stmt = $this-> conn  -> prepare("UPDATE CUENTA SET 
-                SALDOTOTAL = SALDOTOTAL - $monto  WHERE IDCUENTA = $idCuentaOrigen
+            $sql_stmt = $this-> conn  -> prepare("UPDATE CUENTAS SET 
+                SALDO_TOTAL = SALDO_TOTAL - $monto  WHERE ID_CUENTA = $idCuentaOrigen
             ");
             $sql_stmt->execute();
             $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -148,5 +167,23 @@ class dbManager {
             return "Error: " .$e->getMessage();
         }
     }
+
+    public function EditProfile($iduser, $telefono, $correo){
+        try{
+            $iduser = (int)$iduser;
+            $telefono = (int)$telefono;
+            $out = "";
+            
+            $sql_stmt = $this-> conn  -> prepare("
+                CALL EDITAR_INFORMACION_USUARIO($iduser, $telefono, '$correo', :out)
+            ");
+            $sql_stmt->bindParam(':out',$out,PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 40);
+
+            $sql_stmt->execute();
+            return $out;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    } 
 }   
 ?>

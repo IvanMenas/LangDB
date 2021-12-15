@@ -41,13 +41,13 @@ function registrar(){
     apellido = document.getElementById('apellido').value;
     cedula = document.getElementById('cedula').value;
     username = document.getElementById('username').value;
-    tel = document.getElementById('tel').value;
+    telefono= document.getElementById('tel').value;
     direccion = document.getElementById('direccion').value;
-    email = document.getElementById('email').value;
+    correo = document.getElementById('email').value;
     password = document.getElementById('password').value;
     confirm_password = document.getElementById('confirm_password').value;
 
-    $.post('classes/class-manager.php', {f: "singup",name: nombre, lastname: apellido, id: cedula,  username: username, telefono: tel, direccion: direccion, email: email, password: password}, 
+    $.post('classes/class-manager.php', {f: "singup",name: nombre, lastname: apellido, cedula: cedula,  username: username, telefono: telefono, direccion: direccion, correo: correo, password: password}, 
     function(response){
         if(response.d != "1"){
             alert("No se pudo agregar usuario nuevo")
@@ -152,6 +152,7 @@ function addNewAccount(){
 
 function removeAccount(){
     idIBAN = document.getElementById('ibanRemove').value;
+    console.log(idIBAN)
     $.post('classes/class-manager.php', {f: "removeAccount", idIBAN: idIBAN}, 
     function(response){
         done = response.d;
@@ -246,6 +247,7 @@ function getServiceInfo(idServ){
 
 function initSinpe(){
     loadAccountCbb()
+    loadAccountName()
 }
 
 function loadAccountCbb(){ 
@@ -255,7 +257,19 @@ function loadAccountCbb(){
         console.log(accounts)
         for (var i = 0; i < accounts.length; i++) {
             var account = accounts[i];
-            $("#cbbAccount").append($("<option>").attr('id', 'service'+ account.IDCUENTA).append(account.IDBAN + ' ' + account.NOMBRE).attr('value', account.IDCUENTA));
+            $("#cbbAccount").append($("<option>").attr('id', 'service'+ account.ID_CUENTA).append(account.IBAN + ' ' + account.NOMBRE).attr('value', account.ID_CUENTA));
+        }
+    }, 1000);
+}
+
+function loadAccountName(){ 
+    accounts = getUserAccount(1);
+    console.log(localStorage.getItem('IDUSER'))
+    setTimeout(() => {
+        console.log(accounts)
+        for (var i = 0; i < accounts.length; i++) {
+            var account = accounts[i];
+            $("#NameAccount").append($("<option>").attr('id', 'service'+ account.ID_USUARIO_INFO).append(account.NOMBRE + ' ' + account.APELLIDO).attr('value', account.ID_USUARIO_INFO));
         }
     }, 1000);
 }
@@ -292,3 +306,27 @@ function execSinpeMov(idCuentaDestino){
         alert('Sinpe realizado')
     });
 }
+
+function ProfileEdit(){
+    msg = "";
+    telefono = document.getElementById('telef').value;
+    correo = document.getElementById('email').value;
+    console.log(localStorage.getItem('IDUSER'))
+    console.log(telefono)
+    console.log(correo)
+  //  setTimeout(() => {
+        $.post('classes/class-manager.php', {f: "EditProfile", iduser: localStorage.getItem('IDUSER'), telefono: telefono, correo: correo}, 
+        function(response){
+            console.log(response)
+            done = response.d;
+            msg = "Cuenta Modificada";
+            if(!done){
+                msg = "Error no se pudo modificar";
+            }
+            alert(msg)
+        }).done();
+ //   }, 1000);
+}
+
+
+

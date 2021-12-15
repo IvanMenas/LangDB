@@ -759,8 +759,26 @@ BEGIN
         ID_USER = P_ID_USER;
 
     IF V_ID_USUARIO_INFO = 0 THEN
-        P_REPLY := 'Usuario no existe';
-    ELSE
+        P_REPLY := 'NE';
+        
+    ELSIF P_TELEFONO IS NULL THEN 
+        UPDATE USUARIOS_INFO
+        SET
+            CORREO = P_CORREO
+        WHERE
+            ID_USUARIO_INFO = V_ID_USUARIO_INFO;
+        P_REPLY := 'SE/CO';
+    
+        ELSIF P_CORREO IS NULL THEN 
+        
+        UPDATE USUARIOS_INFO
+        SET
+             TELEFONO = P_TELEFONO
+        WHERE
+            ID_USUARIO_INFO = V_ID_USUARIO_INFO;
+        P_REPLY := 'SE/TE';
+    
+    ELSIF P_CORREO IS NOT NULL AND P_TELEFONO IS NOT NULL THEN
         UPDATE USUARIOS_INFO
         SET
             TELEFONO = P_TELEFONO,
@@ -768,7 +786,7 @@ BEGIN
         WHERE
             ID_USUARIO_INFO = V_ID_USUARIO_INFO;
 
-        P_REPLY := 'Telefono y correo modificados correctamente';
+        P_REPLY := 'SE';
     END IF;
 
 END;
@@ -777,7 +795,7 @@ DECLARE
     -- PARAMETERS
     P_ID_USER USUARIOS_INFO.ID_USER%TYPE := 1;
     P_TELEFONO USUARIOS_INFO.TELEFONO%TYPE := '88159923';
-    P_CORREO USUARIOS_INFO.CORREO%TYPE := 'joemesoto2@gmail.com';
+    P_CORREO USUARIOS_INFO.CORREO%TYPE := '';
     P_REPLY VARCHAR2(200);
 BEGIN
     EDITAR_INFORMACION_USUARIO(P_ID_USER, P_TELEFONO, P_CORREO, P_REPLY);
@@ -943,28 +961,29 @@ SELECT * FROM CUENTAS WHERE ID_USER = 1;
 -- ELIMINAR_CUENTA_BANCARIA Stored Procedure
 ----------------------------------------------------------
 CREATE OR REPLACE PROCEDURE ELIMINAR_CUENTA_BANCARIA (
-    P_ID_CUENTA IN CUENTAS.ID_CUENTA%TYPE,
+    P_IBAN IN CUENTAS.IBAN%TYPE,
     P_REPLY OUT VARCHAR2
 ) AS
-    V_ID_CUENTA  CUENTAS.ID_CUENTA%TYPE := 0;
+    V_IBAN  CUENTAS.IBAN%TYPE := 0;
+    
 BEGIN
     SELECT
-        ID_CUENTA
+        IBAN
     INTO
-        V_ID_CUENTA
+        V_IBAN
     FROM
         CUENTAS
     WHERE
-        ID_CUENTA = P_ID_CUENTA;
+        IBAN = P_IBAN;
 
-    IF V_ID_CUENTA = 0 THEN
+    IF V_IBAN = 0 THEN
         P_REPLY := 'Cuenta bancaria no existe';
     ELSE
         DELETE
         FROM
             CUENTAS
         WHERE
-            ID_CUENTA = V_ID_CUENTA;
+            IBAN = V_IBAN;
             
         P_REPLY := 'Cuenta bancaria eliminada correctamente';
     END IF;
@@ -972,10 +991,10 @@ END;
 
 DECLARE
     -- PARAMETERS
-    P_ID_CUENTA CUENTAS.ID_CUENTA%TYPE := 4;
+    P_ID_CUENTA CUENTAS.IBAN%TYPE := 4;
     P_REPLY VARCHAR2(100);
 BEGIN
-    ELIMINAR_CUENTA_BANCARIA(P_ID_CUENTA, P_REPLY);
+    ELIMINAR_CUENTA_BANCARIA(P_IBAN, P_REPLY);
 
     DBMS_OUTPUT.PUT_LINE(P_REPLY);
 END;
