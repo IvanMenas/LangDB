@@ -114,6 +114,7 @@ function initNewAccountModal(){
 function getDivisas(){
     $.post('classes/class-manager.php', {f: "getDivisas"}, 
     function(response){
+        console.log(response)
         divisas = response.d
 
         if(!divisas){
@@ -125,7 +126,7 @@ function getDivisas(){
         }
         for (var i = 0; i < divisas.length; i++) {
             var divisa = divisas[i];
-            $("#divisa").append($("<option>").attr('id', 'service'+ divisa.IDDIVISA).append(divisa.NOMBRE).attr('value', divisa.IDDIVISA));
+            $("#divisa").append($("<option>").attr('id', 'service'+ divisa.ID_DIVISA).append(divisa.NOMBRE).attr('value', divisa.ID_DIVISA));
         }
     });
 }
@@ -167,8 +168,10 @@ function removeAccount(){
 
 function loadCompanies(){
     console.log(localStorage.getItem('IDUSER'))
+    console.log('test')
     $.post('classes/class-manager.php', {f: "loadCompanies"}, 
     function(response){
+        console.log(response)
         companies = response.d
 
         if(!companies){
@@ -180,17 +183,17 @@ function loadCompanies(){
         }
         for (var i = 0; i < companies.length; i++) {
             var company = companies[i];
-            info = getServiceInfo(company.IDEMPRESA);
-            $("#picHolder").append($("<div>").attr('id', 'service'+ company.IDEMPRESA));
-            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'pic'+ company.IDEMPRESA).append('<br>'));
-            $("#pic"+ company.IDEMPRESA).append($("<img>").attr('src', info.file).attr('height', '100').append('<br><br>'));
-            $("#service"+ company.IDEMPRESA).append($("<br>"));
-            $("#service"+ company.IDEMPRESA).append($("<div>").attr('id', 'tite'+ company.IDEMPRESA)
+            info = getServiceInfo(company.ID_EMPRESA);
+            $("#picHolder").append($("<div>").attr('id', 'service'+ company.ID_EMPRESA));
+            $("#service"+ company.ID_EMPRESA).append($("<div>").attr('id', 'pic'+ company.ID_EMPRESA).append('<br>'));
+            $("#pic"+ company.ID_EMPRESA).append($("<img>").attr('src', info.file).attr('height', '100').append('<br><br>'));
+            $("#service"+ company.ID_EMPRESA).append($("<br>"));
+            $("#service"+ company.ID_EMPRESA).append($("<div>").attr('id', 'tite'+ company.ID_EMPRESA)
             .attr('class', 'w3-bar-item w3-button  w3-blue'));
-            $("#tite"+ company.IDEMPRESA).append($("<a>").attr('id', company.IDEMPRESA+info.form).css('color', 'white').attr('href', info.form).append(company.NOMBRE))
-            console.log(document.getElementById(company.IDEMPRESA+info.form))
+            $("#tite"+ company.ID_EMPRESA).append($("<a>").attr('id', company.ID_EMPRESA+info.form).css('color', 'white').attr('href', info.form).append(company.NOMBRE))
+            console.log(document.getElementById(company.ID_EMPRESA+info.form))
             console.log(info.form)
-            console.log(company.IDEMPRESA)
+            console.log(company.ID_EMPRESA)
         }
     });
 }
@@ -199,36 +202,36 @@ function loadCompanies(){
 function getServiceInfo(idServ){
     var info = {};
    switch(idServ){
-       case "1": 
+       case "9": 
             info.file = "images/CCSS.png";
             info.form = "PagoServicio.html";
             
        break;
-       case "2": 
+       case "10": 
             info.file = "images/AYA.png";
             info.form = "PagoServicio.html";
        break;
-       case "3": 
+       case "11": 
              info.file = "images/ICE.png";
              info.form = "postpago.html";
        break;
-       case "4": 
+       case "12": 
             info.file = "images/CNFL.jpg";
             info.form = "PagoServicio.html";
        break;
-       case "5": 
+       case "13": 
              info.file = "images/TIGO.png";
              info.form = "PagoServicio.html";
        break;
-       case "6": 
+       case "14": 
             info.file = "images/kolbi.png";
             info.form = "postPago.html";
         break;
-        case "7": 
+        case "15": 
             info.file = "images/claro.png";
             info.form = "postPago.html";
         break;
-        case "8": 
+        case "16": 
             info.file = "images/movistar.png";
             info.form = "postpago.html";
         break;
