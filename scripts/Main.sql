@@ -1328,8 +1328,8 @@ CREATE OR REPLACE PROCEDURE TRANSFERENCIA ( --Hay que buscarle un mejor nombre
     P_MONTO IN HISTORIAL_TRANSACCIONES.MONTO%TYPE,
     P_REPLY OUT VARCHAR2
 ) AS
-    V_ID_USER CUENTAS.ID_USER%TYPE := 1;
-    V_MONTO CUENTAS.SALDO_TOTAL%TYPE := 10000;
+    V_ID_USER CUENTAS.ID_USER%TYPE;
+    V_MONTO CUENTAS.SALDO_TOTAL%TYPE;
 BEGIN
     SELECT --Hacer una funcion 
         ID_USER
@@ -1339,29 +1339,24 @@ BEGIN
     WHERE
         ID_USER = P_ID_USER;
 
+    SELECT SALDO_ACTUAL INTO V_MONTO FROM CUENTAS WHERE id_cuenta =P_ID_CUENTA_ORIGEN;
+--- Validar existencia
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSIF v_monto < P_MONTO THEN
         P_REPLY := 'Monto insuficiente';
     ELSE 
+    
         UPDATE CUENTAS
         SET SALDO_TOTAL = SALDO_TOTAL - P_MONTO
-        WHERE ID_USER = V_ID_USER;
+        WHERE ID_CUENTA = P_ID_CUENTA_ORIGEN;
     
         INSERT INTO HISTORIAL_TRANSACCIONES(ID_USER,ID_CUENTA_ORIGEN, id_cuenta_destino ,ID_STATUS,MONTO,DESCRIPCION)VALUES
-        (P_ID_USER,P_ID_CUENTA_ORIGEN,P_ID_CUENTA_DESTINO,200,P_MONTO,'Transacción');
+        (P_ID_USER,P_ID_CUENTA_ORIGEN,P_ID_CUENTA_DESTINO,200,P_MONTO,'Transaccion');
       
         UPDATE CUENTAS
         SET SALDO_TOTAL = SALDO_TOTAL + P_MONTO
-        WHERE ID_USER = P_ID_CUENTA_DESTINO;
-        
-    --Revisar que la persona a pagar tenga la plata
-        --Devolver con P_REPLY en caso de que no
-        --Rebajar monto de la persona que pago
-        --Agregar registro de transaccion
-    
-    --Agregar monto a la persona que le pagaron
-        --Agregar registor de transaccion
+        WHERE ID_CUENTA = P_ID_CUENTA_DESTINO;
     END IF;
 END;
 
