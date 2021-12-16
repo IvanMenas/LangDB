@@ -252,7 +252,7 @@ function getServiceInfo(idServ){
 
 function initSinpe(){
     loadAccountCbb()
-    loadAccountName()
+    
 }
 
 function loadAccountCbb(){ 
@@ -304,19 +304,22 @@ function ProfileEdit(){
     msg = "";
     telefono = document.getElementById('telef').value;
     correo = document.getElementById('email').value;
+    direccion = document.getElementById('direccion').value;
     console.log(localStorage.getItem('IDUSER'))
     console.log(telefono)
     console.log(correo)
-    $.post('classes/class-manager.php', {f: "EditProfile", iduser: localStorage.getItem('IDUSER'), telefono: telefono, correo: correo}, 
-    function(response){
-        console.log(response)
-        done = response.d;
-        msg = "Cuenta Modificada";
-        if(!done){
-            msg = "Error no se pudo modificar";
-        }
-        alert(msg)
-    }).done();
+  //  setTimeout(() => {
+        $.post('classes/class-manager.php', {f: "EditProfile", iduser: localStorage.getItem('IDUSER'), telefono: telefono, correo: correo, direccion: direccion}, 
+        function(response){
+            console.log(response)
+            done = response.d;
+            msg = "Cuenta Modificada";
+            if(!done){
+                msg = "Error no se pudo modificar";
+            }
+            alert(msg)
+        }).done();
+ //   }, 1000);
 }
 
 //Historial transaccional

@@ -19,7 +19,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .w3-bar,h1,button {font-family: "Montserrat", sans-serif}
 .fa-anchor,.fa-coffee {font-size:200px}
 </style>
-<body onload="initSinpe()">
+<body >
 
 <!-----------------------------------------------------Navbar----------------------------------------------------->
 <div class="w3-top">
@@ -75,7 +75,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
           <div class="input-group">
               <span class="input-group-addon"><i class="fa fa-user"></i></span>
               <input type="text" class="form-control" placeholder="Username" disabled>
-              <!----<select id="NameAccount" style="font-size:Medium;width:296px;height:25px;"></select><br/>---->
+              
           </div>
       </div>
       
@@ -92,6 +92,13 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
               <input type="text" class="form-control" name="email" id='email' placeholder="Correo">
           </div>
       </div>
+
+      <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-map-signs" for="email"></i></span>
+            <input type="text" class="form-control" name="direccion" id='direccion' placeholder="Dirección">
+        </div>
+    </div>
 
       <div class="form-group">
           <button type="submit" class="btn btn-primary btn-lg" data-dismiss="alert" onclick="ProfileEdit()">Aceptar Cambios</button>
