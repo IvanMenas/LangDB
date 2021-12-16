@@ -4,132 +4,6 @@ ALTER SESSION SET "_ORACLE_SCRIPT"=TRUE;
 
 CREATE TABLESPACE PROYECTOBD DATAFILE 'C:\SQLProjects\proyecto01.dbf' SIZE 50M;
 
--- Email Configuration
-----------------------------------------------------------
---DECLARE
---  l_acl_name         VARCHAR2(30) := 'utl_tcp.xml';
---  l_ftp_server_ip    VARCHAR2(20) := 'smtp.gmail.com';
---  l_ftp_server_name  VARCHAR2(20) := 'smtp.gmail.com';
---  l_username         VARCHAR2(30) := 'ROOT';
---BEGIN
---  DBMS_NETWORK_ACL_ADMIN.create_acl (
---    acl          => l_acl_name, 
---    description  => 'Allow connections using UTL_TCP',
---    principal    => l_username,
---    is_grant     => TRUE, 
---    privilege    => 'connect',
---    start_date   => SYSTIMESTAMP,
---    end_date     => NULL);
---
---  COMMIT;
---
---  DBMS_NETWORK_ACL_ADMIN.add_privilege ( 
---    acl         => l_acl_name, 
---    principal   => l_username,
---    is_grant    => FALSE, 
---    privilege   => 'connect', 
---    position    => NULL, 
---    start_date  => NULL,
---    end_date    => NULL);
---
---  COMMIT;
---
---  DBMS_NETWORK_ACL_ADMIN.assign_acl (
---    acl         => l_acl_name,
---    host        => l_ftp_server_ip, 
---    lower_port  => NULL,
---    upper_port  => NULL);
---
---  DBMS_NETWORK_ACL_ADMIN.assign_acl (
---    acl         => l_acl_name,
---    host        => l_ftp_server_name, 
---    lower_port  => NULL,
---    upper_port  => NULL);
---
---  COMMIT;
---END;
---
---GRANT EXECUTE, DEBUG ON SEND_MAIL_TEST to ROOT;
---
---create or replace noneditionable package SEND_MAIL_TEST
---is
---       procedure mail_test(
---        msg_to in varchar2
---       ,msg_subject in varchar2
---       ,msg_text in varchar2
---  );
---end;
---/
---create or replace noneditionable package body SEND_MAIL_TEST
---IS
---procedure write_mime_header_test (
---
---      p_conn in out nocopy utl_smtp.connection
---    , p_name in varchar2
---    , p_value in varchar2
---   )
---   is
---   begin
---      utl_smtp.write_data ( p_conn
---                          , p_name || ': ' || p_value || utl_tcp.crlf
---      );
---   end;
---procedure mail_test(
---  msg_to in varchar2
--- ,msg_subject in varchar2
--- ,msg_text in varchar2
---  )
---is
---  mail_conn utl_smtp.connection;
---  msg_from varchar2(50) := 'joemesoto@gmail.com';-----Type Your Gmail Email ID in encoded Format----
---  mailhost VARCHAR2(50) := 'smtp.gmail.com';
---  nls_charset    varchar2(255);
---  g_mailer_id constant varchar2 (256) := 'Mailer by Oracle UTL_SMTP';
---BEGIN
---
---  select value
---      into   nls_charset
---      from   nls_database_parameters
---      where  parameter = 'NLS_CHARACTERSET';
---  mail_conn := utl_smtp.open_connection(mailhost, 587,wallet_path => 'D:\App\admin\orcl\wallet'/*Your Wallet Path*/,wallet_password => 'Bl@ckie072701!'/* Your Wallet Password*/
---  ,secure_connection_before_smtp => false);
---  utl_smtp.ehlo(mail_conn,'smtp.gmail.com');
---  utl_smtp.starttls(mail_conn);
---  utl_smtp.command(mail_conn, 'AUTH LOGIN');
---  utl_smtp.command(mail_conn, 'am9lbWVzb3RvQGdtYWlsLmNvbQ=='); --Type Your Gmail Email ID in encoded Format----
---  utl_smtp.command(mail_conn, 'QmxAY2tpZTA3Mjch'); --Type Your Gmail Password in encoded Format------
---  utl_smtp.command(mail_conn, 'MAIL FROM: <'||msg_from||'>');
---  utl_smtp.command(mail_conn, 'RCPT TO: <'||msg_to||'>');
---  utl_smtp.open_data (mail_conn);
---  write_mime_header_test (mail_conn, 'From', msg_from);
---  write_mime_header_test (mail_conn, 'To', msg_to);
---  write_mime_header_test (mail_conn, 'Subject', msg_subject);
---  write_mime_header_test (mail_conn, 'Content-Type', 'text/plain');
---  write_mime_header_test (mail_conn, 'X-Mailer', g_mailer_id);
---  utl_smtp.write_data (mail_conn, utl_tcp.crlf);
---  utl_smtp.write_data (mail_conn, msg_text);
---  utl_smtp.close_data (mail_conn);
---  utl_smtp.quit (mail_conn);
---  exception
---      when others
---      then
---         begin
---           utl_smtp.quit(mail_conn);
---         exception
---           when others then
---             null;
---         end;
---         raise_application_error(-20000,'Failed to send mail due to the following error: ' || sqlerrm);
---   end;
---end;
---/
---
---BEGIN
---    SEND_MAIL_TEST.MAIL_TEST('joemesoto@gmail', 'Test', 'Test');
---END;
---
---exec  SEND_MAIL_TEST.MAIL_TEST('joemesoto@gmail', 'Test', 'Test');
-
 -- Table Elimination | Creation | Insertion
 --------------------------------------------------------------------------------------------------------------------------------
 -- USUARIOS Table
@@ -1196,6 +1070,7 @@ CREATE OR REPLACE PROCEDURE AGREGAR_CUENTA_BANCARIA (
     P_REPLY OUT VARCHAR2
 ) AS
     V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+    V_ID_CUENTA CUENTAS.ID_CUENTA %TYPE := 0;
 BEGIN
     SELECT
         GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
@@ -1207,21 +1082,25 @@ BEGIN
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSE
-<<<<<<< Updated upstream
-        INSERT INTO CUENTAS
-            (ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
-        VALUES
-            (P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
-=======
+        
         SELECT
             GET_ID_CUENTA(P_DATA => P_IBAN, P_BY => 'IBAN')
         INTO
             V_ID_CUENTA
         FROM
             DUAL;
->>>>>>> Stashed changes
+        
+        IF V_ID_CUENTA = 0 THEN
+            INSERT INTO CUENTAS
+                (ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
+            VALUES
+                (P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
+
+            P_REPLY := 'Tarjeta agregada correctamente';
             
-        P_REPLY := 'Tarjeta agregada correctamente';
+        ELSE
+            P_REPLY := 'Cuenta ya existe';
+        END IF;
     END IF;
 END;
 
@@ -1307,7 +1186,7 @@ CREATE OR REPLACE PROCEDURE CARGAR_CUENTAS_BANCARIAS (
     V_ID_USER CUENTAS.ID_USER%TYPE := 0;
 BEGIN
     SELECT
-        GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+        GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
     INTO
         V_ID_USER
     FROM
@@ -1467,8 +1346,6 @@ BEGIN
     CLOSE P_FACTURA;  
 END;
 
-<<<<<<< Updated upstream
-=======
 -- CARGAR_HISTORIAL_TRANSACCIONES Stored Procedure 
 ----------------------------------------------------------
 BEGIN
@@ -1488,7 +1365,7 @@ CREATE OR REPLACE PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
     V_ID_USER CUENTAS.ID_USER%TYPE := 0;
 BEGIN
     SELECT
-        GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+        GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
     INTO
         V_ID_USER
     FROM
@@ -1536,7 +1413,6 @@ BEGIN
     CLOSE P_TRANSACCIONES;  
 END;
 
->>>>>>> Stashed changes
 -- PAGAR_FACTURA Stored Procedure 
 ----------------------------------------------------------
 BEGIN
@@ -1615,69 +1491,6 @@ BEGIN
     END IF;
 END;
 
-<<<<<<< Updated upstream
--- CARGAR_HISTORIAL_TRANSACCIONES Stored Procedure 
-----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
-    P_ID_USER       IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
-    P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
-    P_TRANSACCIONES OUT SYS_REFCURSOR,
-    P_REPLY         OUT VARCHAR2
-) AS
-    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
-BEGIN
-    SELECT --Hacer una funcion 
-        ID_USER
-    INTO V_ID_USER
-    FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
-
-    IF V_ID_USER = 0 THEN
-        P_REPLY := 'Usuario no existe';
-    ELSE
-        OPEN P_TRANSACCIONES FOR SELECT
-                                     *
-                                 FROM
-                                     HISTORIAL_TRANSACCIONES
-                                 WHERE
-                                         ID_CUENTA_ORIGEN = P_ID_CUENTA
-                                     OR  ID_CUENTA_DESTINO = P_ID_CUENTA;
-    END IF;
-END;
-
-DECLARE
-    -- PARAMETERS
-    P_ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE := 1;
-    P_ID_CUENTA HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE := 1;
-    P_TRANSACCIONES SYS_REFCURSOR;
-    P_REPLY VARCHAR2(200);
-    -- CURSOR
-    ID_TRANSACCION HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE;
-    ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE;
-    ID_CUENTA_ORIGEN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE;
-    ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE;
-    ID_STATUS HISTORIAL_TRANSACCIONES.ID_STATUS%TYPE;
-    MONTO HISTORIAL_TRANSACCIONES.MONTO%TYPE;
-    DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
-BEGIN
-    CARGAR_HISTORIAL_TRANSACCIONES(P_ID_USER, P_ID_CUENTA, P_TRANSACCIONES, P_REPLY);
-
-    DBMS_OUTPUT.PUT_LINE(P_REPLY);
-    
-    LOOP
-        FETCH P_TRANSACCIONES 
-        INTO ID_TRANSACCION, ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION;
-        EXIT WHEN P_TRANSACCIONES%NOTFOUND;
-        DBMS_OUTPUT.PUT_LINE(ID_TRANSACCION || ID_USER || ID_CUENTA_ORIGEN || ID_CUENTA_DESTINO || ID_STATUS || MONTO || DESCRIPCION);
-    END LOOP;
-    
-    CLOSE P_TRANSACCIONES;  
-END;
-
-=======
->>>>>>> Stashed changes
 -- TRANSFERENCIA Stored Procedure 
 ----------------------------------------------------------
 BEGIN
@@ -1689,138 +1502,72 @@ EXCEPTION WHEN OTHERS THEN
 END;
 
 CREATE OR REPLACE PROCEDURE TRANSFERENCIA (
-    P_ID_TRANSACCION IN HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE,
-    P_ID_USER IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
-    P_ID_CUENTA_ORIGEN IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
-    P_ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE,
-    P_MONTO IN HISTORIAL_TRANSACCIONES.MONTO%TYPE,
-    monto convertido 
-    P_REPLY OUT VARCHAR2
-) AS
-    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
-    V_ID_TRANSACCION FACTURAS.ID_TRANSACCION%TYPE;
-    V_SALDO_ACTUAL_ORIGEN CUENTAS.SALDO_ACTUAL%TYPE;
-    V_SALDO_ACTUAL_DESTINO CUENTAS.SALDO_ACTUAL%TYPE;
-    V_ID_CUENTA_ORIGEN CUENTAS.ID_CUENTA%TYPE;
-    V_ID_CUENTA_DESTINO CUENTAS.ID_CUENTA%TYPE;
-    V_DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
-BEGIN
-    SELECT
-        GET_ID_USER(P_DATA => TO_CHAR(P_ID_USER), P_DATA2 => '',  P_BY => 'ID_USER')
-    INTO
-        V_ID_USER
-    FROM
-        DUAL;
-
-    IF V_ID_USER = 0 THEN
-        P_REPLY := 'Usuario no existe';
-<<<<<<< Updated upstream
-    ELSIF v_monto < P_MONTO THEN
-        P_REPLY := 'Monto insuficiente';
-    ELSE 
-        UPDATE CUENTAS
-        SET SALDO_TOTAL = SALDO_TOTAL - P_MONTO
-        WHERE ID_USER = V_ID_USER;
-    
-        INSERT INTO HISTORIAL_TRANSACCIONES(ID_USER,ID_CUENTA_ORIGEN, id_cuenta_destino ,ID_STATUS,MONTO,DESCRIPCION)VALUES
-        (P_ID_USER,P_ID_CUENTA_ORIGEN,P_ID_CUENTA_DESTINO,200,P_MONTO,'Transaccion');
-      
-        UPDATE CUENTAS
-        SET SALDO_TOTAL = SALDO_TOTAL + P_MONTO
-        WHERE ID_USER = P_ID_CUENTA_DESTINO;
-        
-    --Revisar que la persona a pagar tenga la plata
-        --Devolver con P_REPLY en caso de que no
-        --Rebajar monto de la persona que pago
-        --Agregar registro de transaccion
-    
-    --Agregar monto a la persona que le pagaron
-        --Agregar registor de transaccion
-    END IF;
-END;
-
-SELECT * FROM historial_transacciones;
-
-
-DECLARE
-    -- PARAMETERS
-    P_ID_USER  HISTORIAL_TRANSACCIONES.ID_USER%TYPE :=1;
-    P_ID_CUENTA_ORIGEN  HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE :=1;
-    P_ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE :=2;
-    P_MONTO  HISTORIAL_TRANSACCIONES.MONTO%TYPE := 50;
-    P_REPLY  VARCHAR2(20);
-BEGIN
-    TRANSFERENCIA(P_ID_USER, P_ID_CUENTA_ORIGEN, P_ID_CUENTA_DESTINO,P_MONTO, P_REPLY);
-
-    DBMS_OUTPUT.PUT_LINE(P_REPLY);
-END;
-
--- SINPE Stored Procedure 
-----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE SINPE ( --Hay que buscarle un mejor nombre
-    P_ID_USER IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
-    P_ID_CUENTA_ORIGEN IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
-    P_ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE,
-    P_MONTO IN HISTORIAL_TRANSACCIONES.ID_SERVICIO%TYPE,
-    P_REPLY OUT VARCHAR2
-) AS
-    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
-    V_MONTO CUENTAS.MONTO%TYPE := 0;
-BEGIN
-    SELECT --Hacer una funcion 
-        ID_USER
-    INTO V_ID_USER
-    FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
-
-    IF V_ID_USER = 0
-    THEN P_REPLY := 'Usuario no existe';
-=======
->>>>>>> Stashed changes
-    ELSE
+        P_ID_TRANSACCION IN HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE,
+        P_ID_USER IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
+        P_ID_CUENTA_ORIGEN IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
+        P_ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE,
+        P_MONTO IN HISTORIAL_TRANSACCIONES.MONTO%TYPE,
+        P_REPLY OUT VARCHAR2
+    ) AS
+        V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+        V_ID_TRANSACCION FACTURAS.ID_TRANSACCION%TYPE;
+        V_SALDO_ACTUAL_ORIGEN CUENTAS.SALDO_ACTUAL%TYPE;
+        V_SALDO_ACTUAL_DESTINO CUENTAS.SALDO_ACTUAL%TYPE;
+        V_ID_CUENTA_ORIGEN CUENTAS.ID_CUENTA%TYPE;
+        V_ID_CUENTA_DESTINO CUENTAS.ID_CUENTA%TYPE;
+        V_DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
+    BEGIN
         SELECT
-            ID_TRANSACCION
-        INTO V_ID_TRANSACCION
-        FROM
-            HISTORIAL_TRANSACCIONES
-        WHERE
-            ID_TRANSACCION = P_ID_TRANSACCION;
-            
-        SELECT
-            C1.SALDO_TOTAL,
-            C2.SALDO_TOTAL,
-            HT.DESCRIPCION
+            GET_ID_USER(P_DATA => TO_CHAR(P_ID_USER), P_DATA2 => '',  P_BY => 'ID_USER')
         INTO
-            V_SALDO_ACTUAL_ORIGEN,
-            V_SALDO_ACTUAL_DESTINO,
-            V_DESCRIPCION
+            V_ID_USER
         FROM
-            HISTORIAL_TRANSACCIONES HT
-            INNER JOIN CUENTAS C1
-                 ON HT.ID_CUENTA_ORIGEN = C1.ID_CUENTA
-            INNER JOIN CUENTAS C2
-                 ON HT.ID_CUENTA_DESTINO = C2.ID_CUENTA
-        WHERE
-            ID_TRANSACCION = V_ID_TRANSACCION;
-            
-        IF V_SALDO_ACTUAL_ORIGEN > P_MONTO THEN
-            P_REPLY := 'Usuario no tiene el monto disponible';
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_REPLY := 'Usuario no existe';
         ELSE
-            INSERT INTO 
-                HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
-            VALUES
-                (V_ID_USER, V_ID_CUENTA_ORIGEN, V_ID_CUENTA_DESTINO, 200, P_MONTO, V_DESCRIPCION);
-
-            UPDATE HISTORIAL_TRANSACCIONES
-            SET
-                ID_STATUS = 200
+            SELECT
+                ID_TRANSACCION
+            INTO V_ID_TRANSACCION
+            FROM
+                HISTORIAL_TRANSACCIONES
+            WHERE
+                ID_TRANSACCION = P_ID_TRANSACCION;
+                
+            SELECT
+                C1.SALDO_TOTAL,
+                C2.SALDO_TOTAL,
+                HT.DESCRIPCION
+            INTO
+                V_SALDO_ACTUAL_ORIGEN,
+                V_SALDO_ACTUAL_DESTINO,
+                V_DESCRIPCION
+            FROM
+                HISTORIAL_TRANSACCIONES HT
+                INNER JOIN CUENTAS C1
+                     ON HT.ID_CUENTA_ORIGEN = C1.ID_CUENTA
+                INNER JOIN CUENTAS C2
+                     ON HT.ID_CUENTA_DESTINO = C2.ID_CUENTA
             WHERE
                 ID_TRANSACCION = V_ID_TRANSACCION;
+                
+            IF V_SALDO_ACTUAL_ORIGEN > P_MONTO THEN
+                P_REPLY := 'Usuario no tiene el monto disponible';
+            ELSE
+                INSERT INTO 
+                    HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+                VALUES
+                    (V_ID_USER, V_ID_CUENTA_ORIGEN, V_ID_CUENTA_DESTINO, 200, P_MONTO, V_DESCRIPCION);
+    
+                UPDATE HISTORIAL_TRANSACCIONES
+                SET
+                    ID_STATUS = 200
+                WHERE
+                    ID_TRANSACCION = V_ID_TRANSACCION;
+            END IF;
+    
         END IF;
-
-    END IF;
 END;
 
 -- Triggers
@@ -1912,7 +1659,7 @@ SELECT * FROM CUENTAS WHERE ID_CUENTA = 2;
 -- USERS Package
 ----------------------------------------------------------
 BEGIN
-  EXECUTE IMMEDIATE 'DROP PACKAGE USERS';
+  EXECUTE IMMEDIATE 'DROP PACKAGE PKG_USERS';
 EXCEPTION
   WHEN OTHERS THEN
     IF SQLCODE != -4043 THEN
@@ -1920,7 +1667,7 @@ EXCEPTION
     END IF;
 END;
 
-CREATE PACKAGE USERS AS 
+CREATE PACKAGE PKG_USERS AS 
    FUNCTION GET_ID_USER(P_DATA IN VARCHAR2,
     P_DATA2 IN VARCHAR2,
     P_BY IN VARCHAR2) RETURN NUMBER; 
@@ -1961,10 +1708,14 @@ CREATE PACKAGE USERS AS
     P_CLAVE    OUT USUARIOS.PASSWORD%TYPE,
     P_REPLY    OUT VARCHAR2);
     
+    PROCEDURE DYNAMIC_UPDATE(P_TABLE IN VARCHAR2,
+    P_COLUMN IN VARCHAR2,
+    P_VALUE IN VARCHAR2,
+    P_WHERE IN VARCHAR2);
     
-END USERS;
+END PKG_USERS;
 
-CREATE OR REPLACE PACKAGE BODY USERS AS  
+CREATE OR REPLACE PACKAGE BODY PKG_USERS AS  
     FUNCTION GET_ID_USER (
         P_DATA IN VARCHAR2,
         P_DATA2 IN VARCHAR2,
@@ -2209,7 +1960,7 @@ CREATE OR REPLACE PACKAGE BODY USERS AS
         V_ID_USER  USUARIOS_INFO.ID_USER%TYPE := 0;
         V_RANDOM_PASS  USUARIOS.PASSWORD%TYPE := 0;
     BEGIN
-        SELECT -- Podria ser un cursor
+        SELECT
             ID_USUARIO_INFO,
             ID_USER
         INTO 
@@ -2231,13 +1982,28 @@ CREATE OR REPLACE PACKAGE BODY USERS AS
             P_REPLY := 'Contrasenha temporal creada!';
         END IF;
     END RECUPERAR_CUENTA;
+    
+    PROCEDURE DYNAMIC_UPDATE (
+        P_TABLE IN VARCHAR2,
+        P_COLUMN IN VARCHAR2,
+        P_VALUE IN VARCHAR2,
+        P_WHERE IN VARCHAR2
+    ) AS
+        UPDATE_SQL VARCHAR2(300);
+    BEGIN
+        UPDATE_SQL := 'UPDATE ' || P_TABLE ||
+            ' SET ' || P_COLUMN ||' = ' || '''' ||  P_VALUE || '''' ||
+            ' WHERE ' || P_WHERE;
+        
+        EXECUTE IMMEDIATE UPDATE_SQL;
+    END;
 
-END USERS; 
+END PKG_USERS; 
 
 -- CUENTAS Package
 ----------------------------------------------------------
 BEGIN
-  EXECUTE IMMEDIATE 'DROP PACKAGE CUENTAS';
+  EXECUTE IMMEDIATE 'DROP PACKAGE PKG_CUENTAS';
 EXCEPTION
   WHEN OTHERS THEN
     IF SQLCODE != -4043 THEN
@@ -2359,7 +2125,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CUENTAS AS
         V_ID_USER CUENTAS.ID_USER%TYPE := 0;
     BEGIN
         SELECT
-            GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+            GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
         INTO
             V_ID_USER
         FROM
@@ -2387,7 +2153,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CUENTAS AS
         V_ID_USER CUENTAS.ID_USER%TYPE := 0;
     BEGIN
         SELECT
-            GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+            GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
         INTO
             V_ID_USER
         FROM
@@ -2490,16 +2256,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_CUENTAS AS
         EXECUTE IMMEDIATE UPDATE_SQL;
     END;
     
-    DECLARE
-        -- PARAMETERS
-        P_TABLE VARCHAR2(200) := 'USUARIOS';
-        P_COLUM VARCHAR2(200) := 'PASSWORD';
-        P_VALUE VARCHAR2(200) := 'JOSEPH4';
-        P_WHERE VARCHAR2(200) := 'ID_USER = ' || TO_CHAR(1);
-    BEGIN
-        DYNAMIC_UPDATE(P_TABLE, P_COLUM, P_VALUE, P_WHERE);
-    END DYNAMIC_UPDATE;
-    
     PROCEDURE DYNAMIC_DELETE(
         P_TABLE IN VARCHAR2,
         P_WHERE IN VARCHAR2
@@ -2516,7 +2272,7 @@ END PKG_CUENTAS;
 -- SERVICES Package
 ----------------------------------------------------------
 BEGIN
-  EXECUTE IMMEDIATE 'DROP PACKAGE SERVICES';
+  EXECUTE IMMEDIATE 'DROP PACKAGE PKG_SERVICES';
 EXCEPTION
   WHEN OTHERS THEN
     IF SQLCODE != -4043 THEN
@@ -2524,11 +2280,11 @@ EXCEPTION
     END IF;
 END;
 
-CREATE PACKAGE SERVICES AS 
+CREATE PACKAGE PKG_SERVICES AS 
    PROCEDURE CARGAR_SERVICIOS(P_SERVICIOS OUT SYS_REFCURSOR);
-END SERVICES;
+END PKG_SERVICES;
 
-CREATE OR REPLACE PACKAGE BODY SERVICES AS  
+CREATE OR REPLACE PACKAGE BODY PKG_SERVICES AS  
     PROCEDURE CARGAR_SERVICIOS (
         P_SERVICIOS OUT SYS_REFCURSOR
     ) AS
@@ -2538,7 +2294,7 @@ CREATE OR REPLACE PACKAGE BODY SERVICES AS
                            FROM
                                SERVICIOS;
     END CARGAR_SERVICIOS;
-END SERVICES; 
+END PKG_SERVICES; 
 
 -- FACTURAS Package
 ----------------------------------------------------------
@@ -2574,7 +2330,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_FACTURAS AS
             V_ID_USER CUENTAS.ID_USER%TYPE := 0;
         BEGIN
             SELECT
-                GET_ID_USER(P_DATA => P_ID_USER, 2 => '', P_BY => 'ID_USER')
+                GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
             INTO
                 V_ID_USER
             FROM
@@ -2615,7 +2371,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_FACTURAS AS
         V_DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
     BEGIN
         SELECT
-            GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+            GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
         INTO
             V_ID_USER
         FROM
