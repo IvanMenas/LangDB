@@ -1,5 +1,8 @@
 -- Database Creation
 --------------------------------------------------------------------------------------------------------------------------------
+ALTER SESSION SET "_ORACLE_SCRIPT"=TRUE;
+
+CREATE TABLESPACE PROYECTOBD DATAFILE 'C:\SQLProjects\proyecto01.dbf' SIZE 50M;
 
 -- Email Configuration
 ----------------------------------------------------------
@@ -407,8 +410,6 @@ INSERT INTO USUARIOS_INFO(ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO
 VALUES
 (23, 3, 'Allan', 'Fernandez', '118180567', '87281934', 'joemesoto@outlook.com', 'Escazu');
 
-
-    SELECT * FROM usuarios;
 -- EMPRESAS Table
 ----------------------------------------------------------
 BEGIN
@@ -625,21 +626,243 @@ INSERT INTO FACTURAS(ID_TRANSACCION, ID_SERVICIO, ID_STATUS)
 VALUES
 (7, 11, 200);
 
--- Functions Cursores mas validaciones
+-- Functions
 --------------------------------------------------------------------------------------------------------------------------------
--- name Function
+-- GET_ID_USER Function
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP FUNCTION GET_ID_USER';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
 
--- Cursors Querys que se repiten mucho
---------------------------------------------------------------------------------------------------------------------------------
--- name Cursor
+CREATE OR REPLACE FUNCTION GET_ID_USER (
+    P_DATA IN VARCHAR2,
+    P_DATA2 IN VARCHAR2,
+    P_BY IN VARCHAR2
+) RETURN NUMBER IS
+    V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+BEGIN
+    CASE P_BY
+        WHEN 'ID_USER' THEN
+            SELECT
+                ID_USER
+            INTO
+                V_ID_USER
+            FROM
+                USUARIOS
+            WHERE
+                ID_USER = TO_NUMBER(P_DATA);
+                
+            RETURN (V_ID_USER);
+        WHEN 'USERNAME' THEN
+            SELECT
+                ID_USER
+            INTO
+                V_ID_USER
+            FROM
+                USUARIOS
+            WHERE
+                USERNAME = P_DATA;
+                
+            RETURN (V_ID_USER);
+        WHEN 'PASSWORD' THEN
+            SELECT
+                ID_USER
+            INTO
+                V_ID_USER
+            FROM
+                USUARIOS
+            WHERE
+                    USERNAME = P_DATA
+                AND PASSWORD = P_DATA2;
+                
+            RETURN (V_ID_USER);
+    END CASE;
+    
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        RETURN (V_ID_USER);
+END;
+
+SELECT
+    GET_ID_USER(P_DATA => '34', P_DATA2 => '', P_BY => 'ID_USER')
+FROM
+    DUAL;
+    
+SELECT
+    GET_ID_USER(P_DATA => 'Chrisca', P_DATA2 => '', P_BY => 'USERNAME')
+FROM
+    DUAL;
+    
+SELECT
+    GET_ID_USER(P_DATA => 'Joseph', P_DATA2 => 'JOSEPH', P_BY => 'PASSWORD')
+FROM
+    DUAL;
+
+-- GET_ID_USER Function
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP FUNCTION GET_ID_USUARIO_INFO';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE FUNCTION GET_ID_USUARIO_INFO (
+    P_DATA IN VARCHAR2,
+    P_BY IN VARCHAR2
+) RETURN NUMBER IS
+    V_ID_USUARIO_INFO USUARIOS_INFO.ID_USUARIO_INFO%TYPE := 0;
+BEGIN
+    CASE P_BY
+        WHEN 'ID_USER' THEN
+            SELECT
+                ID_USUARIO_INFO
+            INTO V_ID_USUARIO_INFO
+            FROM
+                USUARIOS_INFO
+            WHERE
+                ID_USER = TO_NUMBER(P_DATA);
+                
+            RETURN (V_ID_USUARIO_INFO);
+    END CASE;
+    
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        RETURN (V_ID_USUARIO_INFO);
+END;
+
+SELECT
+    GET_ID_USUARIO_INFO(P_DATA => '1', P_BY => 'ID_USER')
+FROM
+    DUAL;
+
+-- GET_ID_USER Function
+----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP FUNCTION GET_ID_CUENTA';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE FUNCTION GET_ID_CUENTA (
+    P_DATA IN VARCHAR2,
+    P_BY IN VARCHAR2
+) RETURN NUMBER IS
+    V_ID_CUENTA CUENTAS.ID_CUENTA%TYPE := 0;
+BEGIN
+    CASE P_BY
+        WHEN 'IBAN' THEN
+            SELECT
+                ID_CUENTA
+            INTO
+                V_ID_CUENTA
+            FROM
+                CUENTAS
+            WHERE
+                IBAN = P_DATA;
+                
+            RETURN (V_ID_CUENTA);
+    END CASE;
+    
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        RETURN (V_ID_CUENTA);
+END;
+
+SELECT
+    GET_ID_CUENTA(P_DATA => 'CRTEST', P_BY => 'IBAN')
+FROM
+    DUAL;
+
+-- SQL Dynamic
+--------------------------------------------------------------------------------------------------------------------------------
+-- DYNAMIC_UPDATE SQL Dynamic
+----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE DYNAMIC_UPDATE';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE DYNAMIC_UPDATE (
+    P_TABLE IN VARCHAR2,
+    P_COLUMN IN VARCHAR2,
+    P_VALUE IN VARCHAR2,
+    P_WHERE IN VARCHAR2
+) AS
+    UPDATE_SQL VARCHAR2(300);
+BEGIN
+    UPDATE_SQL := 'UPDATE ' || P_TABLE ||
+        ' SET ' || P_COLUMN ||' = ' || '''' ||  P_VALUE || '''' ||
+        ' WHERE ' || P_WHERE;
+    
+    EXECUTE IMMEDIATE UPDATE_SQL;
+END;
+
+DECLARE
+    -- PARAMETERS
+    P_TABLE VARCHAR2(200) := 'USUARIOS';
+    P_COLUM VARCHAR2(200) := 'PASSWORD';
+    P_VALUE VARCHAR2(200) := 'JOSEPH4';
+    P_WHERE VARCHAR2(200) := 'ID_USER = ' || TO_CHAR(1);
+BEGIN
+    DYNAMIC_UPDATE(P_TABLE, P_COLUM, P_VALUE, P_WHERE);
+END;
+
+SELECT * FROM USUARIOS WHERE ID_USER = 1;
+
+-- DYNAMIC_DELETE SQL Dynamic
+----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE DYNAMIC_DELETE';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE DYNAMIC_DELETE(
+    P_TABLE IN VARCHAR2,
+    P_WHERE IN VARCHAR2
+) AS
+    DELETE_SQL VARCHAR2(300);
+BEGIN
+    DELETE_SQL := 'DELETE FROM ' || P_TABLE || ' WHERE ' || P_WHERE;
+    
+    EXECUTE IMMEDIATE DELETE_SQL;
+END;
+
+DECLARE
+    -- PARAMETERS
+    P_TABLE VARCHAR2(200) := 'CUENTAS';
+    P_IBAN CUENTAS.IBAN%TYPE := 'CRTEST';
+    P_WHERE VARCHAR2(200) := 'IBAN = ' || '''' ||  P_IBAN || '''';
+BEGIN
+    DYNAMIC_DELETE(P_TABLE, P_WHERE);
+END;
+
+SELECT * FROM CUENTAS WHERE IBAN = 'CRTEST';
 
 -- Stored Procedures
 --------------------------------------------------------------------------------------------------------------------------------
 -- AGREGAR_USUARIO Stored Procedure
 ----------------------------------------------------------
 SET SERVEROUTPUT ON;
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE AGREGAR_USUARIO';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE AGREGAR_USUARIO (
     P_USERNAME IN USUARIOS.USERNAME%TYPE,
     P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
@@ -654,33 +877,28 @@ CREATE OR REPLACE PROCEDURE AGREGAR_USUARIO (
     V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
 BEGIN
     SELECT
-        ID_USER
+        GET_ID_USER(P_DATA => P_USERNAME, P_DATA2 => '', P_BY => 'USERNAME')
     INTO
         V_ID_USER
     FROM
-        USUARIOS
-    WHERE
-        USERNAME = P_USERNAME;
+        DUAL;
         
     IF V_ID_USER != 0 THEN
         P_REPLY := 'Usuario ya existe';
     END IF;
-        
-    EXCEPTION WHEN NO_DATA_FOUND THEN
+    
+    IF V_ID_USER = 0 THEN
         INSERT INTO USUARIOS
             (USERNAME, PASSWORD, INTENTOS)
         VALUES
             (P_USERNAME, P_PASSWORD, 0);
             
         SELECT
-            ID_USER
+            GET_ID_USER(P_DATA => P_USERNAME, P_DATA2 => P_PASSWORD, P_BY => 'PASSWORD')
         INTO
             V_ID_USER
         FROM
-            USUARIOS
-        WHERE
-                USERNAME = P_USERNAME
-            AND PASSWORD = P_PASSWORD;
+            DUAL;
             
         INSERT INTO USUARIOS_INFO
             (ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION)
@@ -688,6 +906,7 @@ BEGIN
             (V_ID_USER, 1, P_NOMBRE, P_APELLIDO, P_CEDULA,  P_TELEFONO, P_CORREO, P_DIRECCION);
         
         P_REPLY := 'Usuario creado correctamente';
+    END IF;
 END;
 
 DECLARE
@@ -699,7 +918,7 @@ DECLARE
     P_CEDULA USUARIOS_INFO.CEDULA%TYPE := '118180566';
     P_TELEFONO USUARIOS_INFO.TELEFONO%TYPE := '87281933';
     P_CORREO USUARIOS_INFO.CORREO%TYPE := 'cchris@test.com';
-    P_DIRECCION USUARIOS_INFO.DIRECCION%TYPE := 'En la pinga Joseph';
+    P_DIRECCION USUARIOS_INFO.DIRECCION%TYPE := 'San Sebastian';
     P_REPLY VARCHAR2(100);
 BEGIN
     AGREGAR_USUARIO(P_USERNAME, P_PASSWORD, P_NOMBRE, P_APELLIDO, P_CEDULA, P_TELEFONO, P_CORREO, P_DIRECCION, P_REPLY);
@@ -707,44 +926,50 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE(P_REPLY);
 END;
 
+SELECT * FROM USUARIOS;
+
 -- VALIDAR_SESION Stored Procedure
 ----------------------------------------------------------
+SET SERVEROUTPUT ON;
 
-CREATE OR REPLACE PROCEDURE VALIDAR_SESION ( --Hay que actualizar los intentos
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE VALIDAR_SESION';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE VALIDAR_SESION (
     P_USERNAME IN USUARIOS.USERNAME%TYPE,
     P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
-    P_ID_USER  OUT USUARIOS.ID_USER%TYPE
+    P_ID_USER  OUT USUARIOS.ID_USER%TYPE,
+    P_USUARIO_INFO OUT SYS_REFCURSOR,
+    P_REPLY    OUT VARCHAR2
 ) AS
-    V_INTENTOS USUARIOS.INTENTOS%TYPE := 0;
     V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
 BEGIN
     SELECT
-        ID_USER,
-        INTENTOS
+        GET_ID_USER(P_DATA => P_USERNAME, P_DATA2 => P_PASSWORD, P_BY => 'PASSWORD')
     INTO
-        V_ID_USER,
-        V_INTENTOS
+        V_ID_USER
     FROM
-        USUARIOS
-    WHERE
-            USERNAME = P_USERNAME
-        AND PASSWORD = P_PASSWORD;
-
-    IF V_INTENTOS <= 7 THEN
-        P_ID_USER := 0;
-    END IF;
+        DUAL;
 
     IF V_ID_USER = 0 THEN
         P_ID_USER := 0;
+        P_REPLY := 'Usuario o contrasenha incorrecto, trate de nuevo';
     ELSE
         P_ID_USER := V_ID_USER;
+        P_REPLY := 'Bienvenido ' || P_USERNAME; --Podria hacer un SELECT para agarrar el nombre
+        OPEN P_USUARIO_INFO FOR SELECT * FROM USUARIOS_INFO WHERE ID_USER = V_ID_USER;
     END IF;
 END;
 
 DECLARE
     -- PARAMETERS
-    P_USERNAME USUARIOS.USERNAME%TYPE := 'Joseph';
-    P_PASSWORD USUARIOS.PASSWORD%TYPE := 'Joseph';
+    P_USERNAME USUARIOS.USERNAME%TYPE := 'Chrisca';
+    P_PASSWORD USUARIOS.PASSWORD%TYPE := 'Chrisca';
     P_ID_USER USUARIOS.ID_USER%TYPE;
     P_USUARIO_INFO SYS_REFCURSOR;
     P_REPLY VARCHAR2(200);
@@ -761,11 +986,14 @@ DECLARE
 BEGIN
     VALIDAR_SESION(P_USERNAME, P_PASSWORD, P_ID_USER, P_USUARIO_INFO, P_REPLY);
 
+    DBMS_OUTPUT.PUT_LINE(P_ID_USER);
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
     
     LOOP
         FETCH P_USUARIO_INFO 
         INTO ID_USUARIO_INFO, ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION;
         EXIT WHEN P_USUARIO_INFO%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_USUARIO_INFO || ID_USER || ID_CEDULA || NOMBRE || APELLIDO || CEDULA || TELEFONO  || CORREO || DIRECCION);
     END LOOP;
     
     CLOSE P_USUARIO_INFO;
@@ -774,51 +1002,52 @@ END;
 -- EDITAR_INFORMACION_USUARIO Stored Procedure
 ----------------------------------------------------------
 SET SERVEROUTPUT ON;
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE EDITAR_INFORMACION_USUARIO';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE EDITAR_INFORMACION_USUARIO (
-    P_ID_USER  IN USUARIOS.ID_USER%TYPE,
-    P_TELEFONO IN USUARIOS_INFO.TELEFONO%TYPE,
-    P_CORREO   IN USUARIOS_INFO.CORREO%TYPE,
-    P_DIRECCION IN usuarios_info.direccion%TYPE,
-    P_REPLY    OUT VARCHAR2
+    P_ID_USER   IN USUARIOS.ID_USER%TYPE,
+    P_TELEFONO  IN USUARIOS_INFO.TELEFONO%TYPE,
+    P_CORREO    IN USUARIOS_INFO.CORREO%TYPE,
+    P_DIRECCION IN USUARIOS_INFO.DIRECCION%TYPE,
+    P_REPLY     OUT VARCHAR2
 ) AS
     V_ID_USUARIO_INFO USUARIOS_INFO.ID_USUARIO_INFO%TYPE := 0;
 BEGIN
     SELECT
-        ID_USUARIO_INFO
-    INTO V_ID_USUARIO_INFO
+        GET_ID_USUARIO_INFO(P_DATA => TO_CHAR(P_ID_USER), P_BY => 'ID_USER')
+    INTO 
+        V_ID_USUARIO_INFO
     FROM
-        USUARIOS_INFO
-    WHERE
-        ID_USER = P_ID_USER;
+        DUAL;
 
     IF V_ID_USUARIO_INFO = 0 THEN
         P_REPLY := 'NE';
-        
-    ELSIF P_TELEFONO IS NULL THEN 
-        UPDATE USUARIOS_INFO
-        SET
-            CORREO = P_CORREO
-        WHERE
-            ID_USUARIO_INFO = V_ID_USUARIO_INFO;
+    END IF;
+    
+    IF P_TELEFONO IS NOT NULL THEN
+    
+        DYNAMIC_UPDATE('USUARIOS_INFO', 'TELEFONO', TO_CHAR(P_TELEFONO), 'ID_USUARIO_INFO = ' || TO_CHAR(V_ID_USUARIO_INFO));
+    
         P_REPLY := 'SE/CO';
+    END IF;
     
-        ELSIF P_CORREO IS NULL THEN 
+    IF P_CORREO IS NOT NULL THEN
+    
+        DYNAMIC_UPDATE('USUARIOS_INFO', 'CORREO', P_CORREO, 'ID_USUARIO_INFO = ' || TO_CHAR(V_ID_USUARIO_INFO));
         
-        UPDATE USUARIOS_INFO
-        SET
-             TELEFONO = P_TELEFONO
-        WHERE
-            ID_USUARIO_INFO = V_ID_USUARIO_INFO;
         P_REPLY := 'SE/TE';
+    END IF;
     
-    ELSIF P_CORREO IS NOT NULL AND P_TELEFONO IS NOT NULL THEN
-        UPDATE USUARIOS_INFO
-        SET
-            TELEFONO = P_TELEFONO,
-            CORREO = P_CORREO,
-            DIRECCION = P_DIRECCION
-        WHERE
-            ID_USUARIO_INFO = V_ID_USUARIO_INFO;
+    IF P_DIRECCION IS NOT NULL THEN
+    
+        DYNAMIC_UPDATE('USUARIOS_INFO', 'DIRECCION', P_DIRECCION, 'ID_USUARIO_INFO = ' || TO_CHAR(V_ID_USUARIO_INFO));
 
         P_REPLY := 'SE';
     END IF;
@@ -827,13 +1056,13 @@ END;
 
 DECLARE
     -- PARAMETERS
-    P_ID_USER USUARIOS_INFO.ID_USER%TYPE := 1;
+    P_ID_USER  USUARIOS_INFO.ID_USER%TYPE := 1;
     P_TELEFONO USUARIOS_INFO.TELEFONO%TYPE := '88159923';
-    P_CORREO USUARIOS_INFO.CORREO%TYPE := '';
-    P_REPLY VARCHAR2(200);
+    P_CORREO   USUARIOS_INFO.CORREO%TYPE := '';
+    P_DIRECCION   USUARIOS_INFO.DIRECCION %TYPE := '';
+    P_REPLY    VARCHAR2(200);
 BEGIN
-    EDITAR_INFORMACION_USUARIO(P_ID_USER, P_TELEFONO, P_CORREO, P_REPLY);
-
+    EDITAR_INFORMACION_USUARIO(P_ID_USER, P_TELEFONO, P_CORREO, P_DIRECCION, P_REPLY);
     DBMS_OUTPUT.PUT_LINE(P_REPLY);
 END;
 
@@ -842,6 +1071,15 @@ SELECT * FROM USUARIOS_INFO WHERE ID_USER = 1;
 -- CAMBIAR_PASSWORD Stored Procedure
 ----------------------------------------------------------
 SET SERVEROUTPUT ON;
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE CAMBIAR_PASSWORD';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE CAMBIAR_PASSWORD (
     P_ID_USER  IN USUARIOS.ID_USER%TYPE,
     P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
@@ -851,23 +1089,17 @@ CREATE OR REPLACE PROCEDURE CAMBIAR_PASSWORD (
     V_RANDOM_PASS VARCHAR2(200);
 BEGIN
     SELECT
-        ID_USER
+        GET_ID_USER(P_DATA => TO_CHAR(P_ID_USER), P_DATA2 => '', P_BY => 'ID_USER')
     INTO
         V_ID_USER
     FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
+        DUAL;
 
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSE
-        UPDATE USUARIOS
-        SET
-            PASSWORD = P_PASSWORD
-        WHERE
-            ID_USER = V_ID_USER;
-
+        DYNAMIC_UPDATE('USUARIOS', 'PASSWORD', P_PASSWORD, 'ID_USER = ' || TO_CHAR(V_ID_USER));
+        
         P_REPLY := 'Contrasenha modificada correctamente';
     END IF;
 
@@ -876,7 +1108,7 @@ END;
 DECLARE
     -- PARAMETERS
     P_ID_USER USUARIOS.ID_USER%TYPE := 1;
-    P_PASSWORD USUARIOS.PASSWORD%TYPE := 'JOSEPH';
+    P_PASSWORD USUARIOS.PASSWORD%TYPE := 'JOSEPH5';
     P_REPLY VARCHAR2(200);
 BEGIN
     CAMBIAR_PASSWORD(P_ID_USER, P_PASSWORD, P_REPLY);
@@ -888,15 +1120,24 @@ SELECT * FROM USUARIOS WHERE ID_USER = 1;
 
 -- RECUPERAR_CUENTA Stored Procedure
 ----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE RECUPERAR_CUENTA ( --STILL IN PROGRESS NO ME SIRVE EL TRIPLEHIJUEPUTA
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE RECUPERAR_CUENTA';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE RECUPERAR_CUENTA (
     P_CORREO   IN USUARIOS_INFO.CORREO%TYPE,
+    P_CLAVE    OUT USUARIOS.PASSWORD%TYPE,
     P_REPLY    OUT VARCHAR2
 ) AS
     V_ID_USUARIO_INFO USUARIOS_INFO.ID_USUARIO_INFO%TYPE := 0;
     V_ID_USER  USUARIOS_INFO.ID_USER%TYPE := 0;
     V_RANDOM_PASS  USUARIOS.PASSWORD%TYPE := 0;
 BEGIN
-    SELECT
+    SELECT -- Podria ser un cursor
         ID_USUARIO_INFO,
         ID_USER
     INTO 
@@ -912,33 +1153,37 @@ BEGIN
     ELSE
         V_RANDOM_PASS := DBMS_RANDOM.string('x',10);
         
-        UTL_MAIL.send(sender     => 'me@domain.com',
-                      recipients => P_CORREO,
-                      subject    => 'Recuperar Cuenta',
-                      message    => 'Contrsenha temporal: ' || V_RANDOM_PASS);
-                      
-        UPDATE USUARIOS
-        SET
-            PASSWORD = V_RANDOM_PASS
-        WHERE
-            ID_USER = V_ID_USER;
-        
-        P_REPLY := 'Correo enviado!';
+        DYNAMIC_UPDATE('USUARIOS', 'PASSWORD', V_RANDOM_PASS, 'ID_USER = ' || TO_CHAR(V_ID_USER));
+            
+        P_CLAVE := V_RANDOM_PASS;
+        P_REPLY := 'Contrasenha temporal creada!';
     END IF;
 END;
 
 DECLARE
     -- PARAMETERS
     P_CORREO USUARIOS_INFO.CORREO%TYPE := 'joemesoto@gmail.com';
+    P_CLAVE VARCHAR2(200);
     P_REPLY VARCHAR2(200);
 BEGIN
-    RECUPERAR_CUENTA(P_CORREO, P_REPLY);
+    RECUPERAR_CUENTA(P_CORREO, P_CLAVE, P_REPLY);
 
+    DBMS_OUTPUT.PUT_LINE(P_CLAVE);
     DBMS_OUTPUT.PUT_LINE(P_REPLY);
 END;
 
+SELECT * FROM USUARIOS;
+
 -- AGREGAR_CUENTA_BANCARIA Stored Procedure
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE AGREGAR_CUENTA_BANCARIA';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE AGREGAR_CUENTA_BANCARIA (
     P_ID_USER IN CUENTAS.ID_USER%TYPE,
     P_ID_DIVISA   IN CUENTAS.ID_DIVISA%TYPE,
@@ -953,21 +1198,28 @@ CREATE OR REPLACE PROCEDURE AGREGAR_CUENTA_BANCARIA (
     V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
 BEGIN
     SELECT
-        ID_USER
+        GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
     INTO
         V_ID_USER
     FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
+        DUAL;
 
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSE
+<<<<<<< Updated upstream
         INSERT INTO CUENTAS
             (ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
         VALUES
             (P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
+=======
+        SELECT
+            GET_ID_CUENTA(P_DATA => P_IBAN, P_BY => 'IBAN')
+        INTO
+            V_ID_CUENTA
+        FROM
+            DUAL;
+>>>>>>> Stashed changes
             
         P_REPLY := 'Tarjeta agregada correctamente';
     END IF;
@@ -994,30 +1246,31 @@ SELECT * FROM CUENTAS WHERE ID_USER = 1;
 
 -- ELIMINAR_CUENTA_BANCARIA Stored Procedure
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE ELIMINAR_CUENTA_BANCARIA';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE ELIMINAR_CUENTA_BANCARIA (
     P_IBAN IN CUENTAS.IBAN%TYPE,
     P_REPLY OUT VARCHAR2
 ) AS
-    V_IBAN  CUENTAS.IBAN%TYPE := 0;
-    
+    V_ID_CUENTA  CUENTAS.ID_CUENTA%TYPE := 0;
 BEGIN
     SELECT
-        IBAN
+        GET_ID_CUENTA(P_DATA => P_IBAN, P_BY => 'IBAN')
     INTO
-        V_IBAN
+        V_ID_CUENTA
     FROM
-        CUENTAS
-    WHERE
-        IBAN = P_IBAN;
+        DUAL;
 
-    IF V_IBAN = 0 THEN
+    IF V_ID_CUENTA = 0 THEN
         P_REPLY := 'Cuenta bancaria no existe';
     ELSE
-        DELETE
-        FROM
-            CUENTAS
-        WHERE
-            IBAN = V_IBAN;
+        DYNAMIC_DELETE('CUENTAS', 'IBAN = ' || '''' ||  P_IBAN || '''');
             
         P_REPLY := 'Cuenta bancaria eliminada correctamente';
     END IF;
@@ -1025,7 +1278,7 @@ END;
 
 DECLARE
     -- PARAMETERS
-    P_ID_CUENTA CUENTAS.IBAN%TYPE := 4;
+    P_IBAN CUENTAS.IBAN%TYPE := 'CRTEST';
     P_REPLY VARCHAR2(100);
 BEGIN
     ELIMINAR_CUENTA_BANCARIA(P_IBAN, P_REPLY);
@@ -1033,11 +1286,19 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE(P_REPLY);
 END;
 
-SELECT * FROM CUENTAS WHERE ID_USER = 1;
+SELECT * FROM CUENTAS WHERE IBAN = 'CRTEST';
 
 
 -- CARGAR_CUENTAS_BANCARIAS Stored Procedure
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE CARGAR_CUENTAS_BANCARIAS';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE CARGAR_CUENTAS_BANCARIAS (
     P_ID_USER IN CUENTAS.ID_USER%TYPE,
     P_CUENTAS OUT SYS_REFCURSOR,
@@ -1046,13 +1307,11 @@ CREATE OR REPLACE PROCEDURE CARGAR_CUENTAS_BANCARIAS (
     V_ID_USER CUENTAS.ID_USER%TYPE := 0;
 BEGIN
     SELECT
-        ID_USER
-    INTO V_ID_USER
+        GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+    INTO
+        V_ID_USER
     FROM
-        CUENTAS
-    WHERE
-        ID_USER = P_ID_USER
-    FETCH FIRST 1 ROWS ONLY;
+        DUAL;
 
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
@@ -1100,6 +1359,14 @@ END;
 
 -- CARGAR_SERVICIOS Stored Procedure
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE CARGAR_SERVICIOS';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE CARGAR_SERVICIOS (
     P_SERVICIOS OUT SYS_REFCURSOR
 ) AS
@@ -1132,26 +1399,32 @@ END;
 
 -- VERIFICAR_FACTURA Stored Procedure
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE VERIFICAR_FACTURA';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
 CREATE OR REPLACE PROCEDURE VERIFICAR_FACTURA (
     P_ID_USER IN CUENTAS.ID_USER%TYPE,
     P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
-    P_FACTURA OUT SYS_REFCURSOR, --No se que es lo que ocupa, si Factura, Transacccion? O las dos?
+    P_FACTURA OUT SYS_REFCURSOR,
     P_REPLY OUT VARCHAR2
 ) AS
     V_ID_USER CUENTAS.ID_USER%TYPE := 0;
 BEGIN
-    SELECT --Hacer una funcion 
-        ID_USER
-    INTO V_ID_USER
+    SELECT
+        GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
+    INTO
+        V_ID_USER
     FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
+        DUAL;
 
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSE
-    --TODO: Buscar facturas que tengan el status "pendiente" y que tengan el mismo ID_USER que el parametro
         OPEN P_FACTURA FOR SELECT
                                F.ID_FACTURA,
                                F.ID_TRANSACCION,
@@ -1159,12 +1432,12 @@ BEGIN
                                F.ID_STATUS
                            FROM
                                     FACTURAS F
-                               INNER JOIN HISTORIAL_TRANSACCIONES HT --No se si ocupamos otra tabla solo de transacciones
+                               INNER JOIN HISTORIAL_TRANSACCIONES HT
                                 ON F.ID_TRANSACCION = HT.ID_TRANSACCION
                            WHERE
                                    F.ID_SERVICIO = P_ID_SERVICIO
                                AND HT.ID_USER = P_ID_USER
-                               AND F.ID_STATUS = 300; --TODO: Setear un status de "Por Pagar"
+                               AND F.ID_STATUS = 300;
     END IF;
 END;
 
@@ -1194,11 +1467,89 @@ BEGIN
     CLOSE P_FACTURA;  
 END;
 
+<<<<<<< Updated upstream
+=======
+-- CARGAR_HISTORIAL_TRANSACCIONES Stored Procedure 
+----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
+    P_ID_USER       IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
+    P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
+    P_TRANSACCIONES OUT SYS_REFCURSOR,
+    P_REPLY         OUT VARCHAR2
+) AS
+    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+BEGIN
+    SELECT
+        GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+    INTO
+        V_ID_USER
+    FROM
+        DUAL;
+
+    IF V_ID_USER = 0 THEN
+        P_REPLY := 'Usuario no existe';
+    ELSE
+        OPEN P_TRANSACCIONES FOR SELECT
+                                     *
+                                 FROM
+                                     HISTORIAL_TRANSACCIONES
+                                 WHERE
+                                         ID_CUENTA_ORIGEN = P_ID_CUENTA
+                                     OR  ID_CUENTA_DESTINO = P_ID_CUENTA;
+    END IF;
+END;
+
+DECLARE
+    -- PARAMETERS
+    P_ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE := 1;
+    P_ID_CUENTA HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE := 1;
+    P_TRANSACCIONES SYS_REFCURSOR;
+    P_REPLY VARCHAR2(200);
+    -- CURSOR
+    ID_TRANSACCION HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE;
+    ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE;
+    ID_CUENTA_ORIGEN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE;
+    ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE;
+    ID_STATUS HISTORIAL_TRANSACCIONES.ID_STATUS%TYPE;
+    MONTO HISTORIAL_TRANSACCIONES.MONTO%TYPE;
+    DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
+BEGIN
+    CARGAR_HISTORIAL_TRANSACCIONES(P_ID_USER, P_ID_CUENTA, P_TRANSACCIONES, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+    
+    LOOP
+        FETCH P_TRANSACCIONES 
+        INTO ID_TRANSACCION, ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION;
+        EXIT WHEN P_TRANSACCIONES%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_TRANSACCION || ID_USER || ID_CUENTA_ORIGEN || ID_CUENTA_DESTINO || ID_STATUS || MONTO || DESCRIPCION);
+    END LOOP;
+    
+    CLOSE P_TRANSACCIONES;  
+END;
+
+>>>>>>> Stashed changes
 -- PAGAR_FACTURA Stored Procedure 
 ----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE PAGAR_FACTURA ( --Need to check parammeters
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE PAGAR_FACTURA';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE PAGAR_FACTURA (
     P_ID_FACTURA IN FACTURAS.ID_FACTURA%TYPE,
-    P_ID_USER IN FACTURAS.ID_USER%TYPE,
+    P_ID_USER IN CUENTAS.ID_USER%TYPE,
     P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
     P_MONTO IN FACTURAS.ID_SERVICIO%TYPE,
     P_REPLY OUT VARCHAR2
@@ -1209,19 +1560,18 @@ CREATE OR REPLACE PROCEDURE PAGAR_FACTURA ( --Need to check parammeters
     V_SALDO_ACTUAL_DESTINO CUENTAS.SALDO_ACTUAL%TYPE;
     V_ID_CUENTA_ORIGEN CUENTAS.ID_CUENTA%TYPE;
     V_ID_CUENTA_DESTINO CUENTAS.ID_CUENTA%TYPE;
+    V_DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
 BEGIN
-    SELECT --Hacer una funcion 
-        ID_USER
-    INTO V_ID_USER
+    SELECT
+        GET_ID_USER(P_DATA => TO_CHAR(P_ID_USER), P_DATA2 => '', P_BY => 'ID_USER')
+    INTO
+        V_ID_USER
     FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
+        DUAL;
 
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSE
-    --Get Factura Info
         SELECT
             ID_TRANSACCION
         INTO V_ID_TRANSACCION
@@ -1229,13 +1579,15 @@ BEGIN
             FACTURAS
         WHERE
             ID_FACTURA = P_ID_FACTURA;
-    --Revisar que la persona a pagar tenga la plata
-        SELECT --Hacer una funcion 
+            
+        SELECT 
             C1.SALDO_TOTAL,
-            C2.SALDO_TOTAL
+            C2.SALDO_TOTAL,
+            HT.DESCRIPCION
         INTO
             V_SALDO_ACTUAL_ORIGEN,
-            V_SALDO_ACTUAL_DESTINO
+            V_SALDO_ACTUAL_DESTINO,
+            V_DESCRIPCION
         FROM
             HISTORIAL_TRANSACCIONES HT
             INNER JOIN CUENTAS C1
@@ -1246,40 +1598,13 @@ BEGIN
             ID_TRANSACCION = V_ID_TRANSACCION;
             
         IF V_SALDO_ACTUAL_ORIGEN > P_MONTO THEN
-            --Devolver con P_REPLY en caso de que no
             P_REPLY := 'Usuario no tiene el monto disponible';
         ELSE
-            SELECT
-                HT.ID_CUENTA_ORIGEN,
-                HT.ID_CUENTA_DESTINO
-            INTO
-                V_ID_CUENTA_ORIGEN,
-                V_ID_CUENTA_DESTINO
-            FROM
-                     FACTURAS F
-                INNER JOIN HISTORIAL_TRANSACCIONES HT
-                 ON F.ID_TRANSACCION = HT.ID_TRANSACCION
-            WHERE
-                F.ID_FACTURA = P_ID_FACTURA;
-                
-            --Rebajar monto de la persona que pago
-            UPDATE CUENTAS
-                        SET
-                    SALDO_TOTAL = V_SALDO_ACTUAL_ORIGEN - P_MONTO
-                WHERE
-                    ID_CUENTA = V_ID_CUENTA_ORIGEN;
-            
-            --Agregar registor de transaccion (Trigger)
-        
-            --Agregar monto a la persona que le pagaron
-            UPDATE CUENTAS
-                        SET
-                    SALDO_TOTAL = V_SALDO_ACTUAL_DESTINO + P_MONTO
-                WHERE
-                    ID_CUENTA = V_ID_CUENTA_DESTINO;
-            --Agregar registor de transaccion (Trigger)\
-            
-            --Cambiar status de factura por 'pagado'
+            INSERT INTO 
+                HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+            VALUES
+                (V_ID_USER, V_ID_CUENTA_ORIGEN, V_ID_CUENTA_DESTINO, 200, P_MONTO, V_DESCRIPCION);
+
             UPDATE FACTURAS
                             SET
                         ID_STATUS = 200
@@ -1288,9 +1613,9 @@ BEGIN
         END IF;
 
     END IF;
-
 END;
 
+<<<<<<< Updated upstream
 -- CARGAR_HISTORIAL_TRANSACCIONES Stored Procedure 
 ----------------------------------------------------------
 CREATE OR REPLACE PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
@@ -1351,9 +1676,20 @@ BEGIN
     CLOSE P_TRANSACCIONES;  
 END;
 
+=======
+>>>>>>> Stashed changes
 -- TRANSFERENCIA Stored Procedure 
 ----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE TRANSFERENCIA ( --Hay que buscarle un mejor nombre
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE TRANSFERENCIA';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4043 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE TRANSFERENCIA (
+    P_ID_TRANSACCION IN HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE,
     P_ID_USER IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
     P_ID_CUENTA_ORIGEN IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
     P_ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE,
@@ -1361,19 +1697,24 @@ CREATE OR REPLACE PROCEDURE TRANSFERENCIA ( --Hay que buscarle un mejor nombre
     monto convertido 
     P_REPLY OUT VARCHAR2
 ) AS
-    V_ID_USER CUENTAS.ID_USER%TYPE := 1;
-    V_MONTO CUENTAS.SALDO_TOTAL%TYPE := 10000;
+    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+    V_ID_TRANSACCION FACTURAS.ID_TRANSACCION%TYPE;
+    V_SALDO_ACTUAL_ORIGEN CUENTAS.SALDO_ACTUAL%TYPE;
+    V_SALDO_ACTUAL_DESTINO CUENTAS.SALDO_ACTUAL%TYPE;
+    V_ID_CUENTA_ORIGEN CUENTAS.ID_CUENTA%TYPE;
+    V_ID_CUENTA_DESTINO CUENTAS.ID_CUENTA%TYPE;
+    V_DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
 BEGIN
-    SELECT --Hacer una funcion 
-        ID_USER
-    INTO V_ID_USER
+    SELECT
+        GET_ID_USER(P_DATA => TO_CHAR(P_ID_USER), P_DATA2 => '',  P_BY => 'ID_USER')
+    INTO
+        V_ID_USER
     FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
+        DUAL;
 
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
+<<<<<<< Updated upstream
     ELSIF v_monto < P_MONTO THEN
         P_REPLY := 'Monto insuficiente';
     ELSE 
@@ -1436,24 +1777,893 @@ BEGIN
 
     IF V_ID_USER = 0
     THEN P_REPLY := 'Usuario no existe';
+=======
+>>>>>>> Stashed changes
     ELSE
-    --Revisar que la persona a pagar tenga la plata
-        --Devolver con P_REPLY en caso de que no
-        --Rebajar monto de la persona que pago
-        --Agregar registro de transaccion
-    
-    --Agregar monto a la persona que le pagaron
-        --Agregar registor de transaccion
-     END IF;
+        SELECT
+            ID_TRANSACCION
+        INTO V_ID_TRANSACCION
+        FROM
+            HISTORIAL_TRANSACCIONES
+        WHERE
+            ID_TRANSACCION = P_ID_TRANSACCION;
+            
+        SELECT
+            C1.SALDO_TOTAL,
+            C2.SALDO_TOTAL,
+            HT.DESCRIPCION
+        INTO
+            V_SALDO_ACTUAL_ORIGEN,
+            V_SALDO_ACTUAL_DESTINO,
+            V_DESCRIPCION
+        FROM
+            HISTORIAL_TRANSACCIONES HT
+            INNER JOIN CUENTAS C1
+                 ON HT.ID_CUENTA_ORIGEN = C1.ID_CUENTA
+            INNER JOIN CUENTAS C2
+                 ON HT.ID_CUENTA_DESTINO = C2.ID_CUENTA
+        WHERE
+            ID_TRANSACCION = V_ID_TRANSACCION;
+            
+        IF V_SALDO_ACTUAL_ORIGEN > P_MONTO THEN
+            P_REPLY := 'Usuario no tiene el monto disponible';
+        ELSE
+            INSERT INTO 
+                HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+            VALUES
+                (V_ID_USER, V_ID_CUENTA_ORIGEN, V_ID_CUENTA_DESTINO, 200, P_MONTO, V_DESCRIPCION);
 
+            UPDATE HISTORIAL_TRANSACCIONES
+            SET
+                ID_STATUS = 200
+            WHERE
+                ID_TRANSACCION = V_ID_TRANSACCION;
+        END IF;
+
+    END IF;
 END;
 
 -- Triggers
 --------------------------------------------------------------------------------------------------------------------------------
--- name Trigger
+-- SALDO_ACTUAL Trigger
 ----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP TRIGGER UPDATE_SALDO_ACTUAL';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4080 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE TRIGGER UPDATE_SALDO_ACTUAL 
+    AFTER 
+    INSERT 
+    ON HISTORIAL_TRANSACCIONES
+    FOR EACH ROW
+DECLARE
+BEGIN
+    IF :NEW.ID_STATUS = 200 THEN
+        UPDATE CUENTAS
+                    SET
+                SALDO_ACTUAL = SALDO_ACTUAL - :NEW.MONTO
+            WHERE
+                ID_CUENTA = :NEW.ID_CUENTA_ORIGEN;
+                
+        UPDATE CUENTAS
+                    SET
+                SALDO_ACTUAL = SALDO_ACTUAL + :NEW.MONTO
+            WHERE
+                ID_CUENTA = :NEW.ID_CUENTA_DESTINO;
+    END IF;
+END;
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 1;
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 2;
+
+INSERT INTO HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+VALUES
+(1, 1, 2, 200, 5000, 'Test 1');
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 1;
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 2;
+
+-- UPDATE_SALDO_TOTAL Trigger
+----------------------------------------------------------
+BEGIN
+   EXECUTE IMMEDIATE 'DROP TRIGGER UPDATE_SALDO_TOTAL';
+EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE != -4080 THEN
+      RAISE;
+   END IF;
+END;
+
+CREATE OR REPLACE TRIGGER UPDATE_SALDO_TOTAL 
+    AFTER 
+    UPDATE 
+    ON CUENTAS
+    FOR EACH ROW
+DECLARE
+BEGIN
+    IF :NEW.SALDO_ACTUAL != :OLD.SALDO_ACTUAL THEN
+        UPDATE CUENTAS
+                    SET
+                SALDO_TOTAL = :NEW.SALDO_ACTUAL + :NEW.SALDO_RETENIDO
+            WHERE
+                ID_CUENTA = :NEW.ID_CUENTA;
+    END IF;
+END;
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 1;
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 2;
+
+INSERT INTO HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+VALUES
+(1, 1, 2, 200, 5000, 'Test 1');
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 1;
+
+SELECT * FROM CUENTAS WHERE ID_CUENTA = 2;
 
 -- Packages
 --------------------------------------------------------------------------------------------------------------------------------
--- name Package
+-- USERS Package
 ----------------------------------------------------------
+BEGIN
+  EXECUTE IMMEDIATE 'DROP PACKAGE USERS';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -4043 THEN
+      RAISE;
+    END IF;
+END;
+
+CREATE PACKAGE USERS AS 
+   FUNCTION GET_ID_USER(P_DATA IN VARCHAR2,
+    P_DATA2 IN VARCHAR2,
+    P_BY IN VARCHAR2) RETURN NUMBER; 
+    
+    FUNCTION GET_ID_USUARIO_INFO(P_DATA IN VARCHAR2,
+    P_BY IN VARCHAR2) RETURN NUMBER;
+    
+    FUNCTION GET_ID_CUENTA(P_DATA IN VARCHAR2,
+    P_BY IN VARCHAR2) RETURN NUMBER;
+    
+    PROCEDURE AGREGAR_USUARIO(P_USERNAME IN USUARIOS.USERNAME%TYPE,
+    P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
+    P_NOMBRE IN USUARIOS_INFO.NOMBRE%TYPE,
+    P_APELLIDO IN USUARIOS_INFO.APELLIDO%TYPE,
+    P_CEDULA IN USUARIOS_INFO.CEDULA%TYPE,
+    P_TELEFONO IN USUARIOS_INFO.TELEFONO%TYPE,
+    P_CORREO IN USUARIOS_INFO.CORREO%TYPE,
+    P_DIRECCION IN USUARIOS_INFO.DIRECCION%TYPE,
+    P_REPLY    OUT VARCHAR2);
+    
+    PROCEDURE VALIDAR_SESION(P_USERNAME IN USUARIOS.USERNAME%TYPE,
+    P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
+    P_ID_USER  OUT USUARIOS.ID_USER%TYPE,
+    P_USUARIO_INFO OUT SYS_REFCURSOR,
+    P_REPLY    OUT VARCHAR2);
+    
+    PROCEDURE EDITAR_INFORMACION_USUARIO(P_ID_USER   IN USUARIOS.ID_USER%TYPE,
+    P_TELEFONO  IN USUARIOS_INFO.TELEFONO%TYPE,
+    P_CORREO    IN USUARIOS_INFO.CORREO%TYPE,
+    P_DIRECCION IN USUARIOS_INFO.DIRECCION%TYPE,
+    P_REPLY     OUT VARCHAR2);
+    
+    PROCEDURE CAMBIAR_PASSWORD(P_ID_USER  IN USUARIOS.ID_USER%TYPE,
+    P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
+    P_REPLY    OUT VARCHAR2);
+    
+    PROCEDURE RECUPERAR_CUENTA(P_CORREO   IN USUARIOS_INFO.CORREO%TYPE,
+    P_CLAVE    OUT USUARIOS.PASSWORD%TYPE,
+    P_REPLY    OUT VARCHAR2);
+    
+    
+END USERS;
+
+CREATE OR REPLACE PACKAGE BODY USERS AS  
+    FUNCTION GET_ID_USER (
+        P_DATA IN VARCHAR2,
+        P_DATA2 IN VARCHAR2,
+        P_BY IN VARCHAR2
+    ) RETURN NUMBER IS
+        V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+    BEGIN
+        CASE P_BY
+            WHEN 'ID_USER' THEN
+                SELECT
+                    ID_USER
+                INTO
+                    V_ID_USER
+                FROM
+                    USUARIOS
+                WHERE
+                    ID_USER = TO_NUMBER(P_DATA);
+                    
+                RETURN (V_ID_USER);
+            WHEN 'USERNAME' THEN
+                SELECT
+                    ID_USER
+                INTO
+                    V_ID_USER
+                FROM
+                    USUARIOS
+                WHERE
+                    USERNAME = P_DATA;
+                    
+                RETURN (V_ID_USER);
+            WHEN 'PASSWORD' THEN
+                SELECT
+                    ID_USER
+                INTO
+                    V_ID_USER
+                FROM
+                    USUARIOS
+                WHERE
+                        USERNAME = P_DATA
+                    AND PASSWORD = P_DATA2;
+                    
+                RETURN (V_ID_USER);
+        END CASE;
+        
+        EXCEPTION WHEN NO_DATA_FOUND THEN
+            RETURN (V_ID_USER);
+    END GET_ID_USER;
+    
+    FUNCTION GET_ID_USUARIO_INFO (
+        P_DATA IN VARCHAR2,
+        P_BY IN VARCHAR2
+    ) RETURN NUMBER IS
+        V_ID_USUARIO_INFO USUARIOS_INFO.ID_USUARIO_INFO%TYPE := 0;
+    BEGIN
+        CASE P_BY
+            WHEN 'ID_USER' THEN
+                SELECT
+                    ID_USUARIO_INFO
+                INTO V_ID_USUARIO_INFO
+                FROM
+                    USUARIOS_INFO
+                WHERE
+                    ID_USER = TO_NUMBER(P_DATA);
+                    
+                RETURN (V_ID_USUARIO_INFO);
+        END CASE;
+        
+        EXCEPTION WHEN NO_DATA_FOUND THEN
+            RETURN (V_ID_USUARIO_INFO);
+    END GET_ID_USUARIO_INFO;
+    
+    FUNCTION GET_ID_CUENTA (
+        P_DATA IN VARCHAR2,
+        P_BY IN VARCHAR2
+    ) RETURN NUMBER IS
+        V_ID_CUENTA CUENTAS.ID_CUENTA%TYPE := 0;
+    BEGIN
+        CASE P_BY
+            WHEN 'IBAN' THEN
+                SELECT
+                    ID_CUENTA
+                INTO
+                    V_ID_CUENTA
+                FROM
+                    CUENTAS
+                WHERE
+                    IBAN = P_DATA;
+                    
+                RETURN (V_ID_CUENTA);
+        END CASE;
+        
+        EXCEPTION WHEN NO_DATA_FOUND THEN
+            RETURN (V_ID_CUENTA);
+    END GET_ID_CUENTA;
+    
+    PROCEDURE AGREGAR_USUARIO (
+        P_USERNAME IN USUARIOS.USERNAME%TYPE,
+        P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
+        P_NOMBRE IN USUARIOS_INFO.NOMBRE%TYPE,
+        P_APELLIDO IN USUARIOS_INFO.APELLIDO%TYPE,
+        P_CEDULA IN USUARIOS_INFO.CEDULA%TYPE,
+        P_TELEFONO IN USUARIOS_INFO.TELEFONO%TYPE,
+        P_CORREO IN USUARIOS_INFO.CORREO%TYPE,
+        P_DIRECCION IN USUARIOS_INFO.DIRECCION%TYPE,
+        P_REPLY    OUT VARCHAR2
+    ) AS
+        V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => P_USERNAME, P_DATA2 => '', P_BY => 'USERNAME')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+            
+        IF V_ID_USER != 0 THEN
+            P_REPLY := 'Usuario ya existe';
+        END IF;
+        
+        IF V_ID_USER = 0 THEN
+            INSERT INTO USUARIOS
+                (USERNAME, PASSWORD, INTENTOS)
+            VALUES
+                (P_USERNAME, P_PASSWORD, 0);
+                
+            SELECT
+                GET_ID_USER(P_DATA => P_USERNAME, P_DATA2 => P_PASSWORD, P_BY => 'PASSWORD')
+            INTO
+                V_ID_USER
+            FROM
+                DUAL;
+                
+            INSERT INTO USUARIOS_INFO
+                (ID_USER, ID_CEDULA, NOMBRE, APELLIDO, CEDULA, TELEFONO, CORREO, DIRECCION)
+            VALUES
+                (V_ID_USER, 1, P_NOMBRE, P_APELLIDO, P_CEDULA,  P_TELEFONO, P_CORREO, P_DIRECCION);
+            
+            P_REPLY := 'Usuario creado correctamente';
+        END IF;
+    END AGREGAR_USUARIO;
+    
+    PROCEDURE VALIDAR_SESION (
+        P_USERNAME IN USUARIOS.USERNAME%TYPE,
+        P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
+        P_ID_USER  OUT USUARIOS.ID_USER%TYPE,
+        P_USUARIO_INFO OUT SYS_REFCURSOR,
+        P_REPLY    OUT VARCHAR2
+    ) AS
+        V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => P_USERNAME, P_DATA2 => P_PASSWORD, P_BY => 'PASSWORD')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_ID_USER := 0;
+            P_REPLY := 'Usuario o contrasenha incorrecto, trate de nuevo';
+        ELSE
+            P_ID_USER := V_ID_USER;
+            P_REPLY := 'Bienvenido ' || P_USERNAME; --Podria hacer un SELECT para agarrar el nombre
+            OPEN P_USUARIO_INFO FOR SELECT * FROM USUARIOS_INFO WHERE ID_USER = V_ID_USER;
+        END IF;
+    END VALIDAR_SESION;
+    
+    PROCEDURE EDITAR_INFORMACION_USUARIO (
+        P_ID_USER   IN USUARIOS.ID_USER%TYPE,
+        P_TELEFONO  IN USUARIOS_INFO.TELEFONO%TYPE,
+        P_CORREO    IN USUARIOS_INFO.CORREO%TYPE,
+        P_DIRECCION IN USUARIOS_INFO.DIRECCION%TYPE,
+        P_REPLY     OUT VARCHAR2
+    ) AS
+        V_ID_USUARIO_INFO USUARIOS_INFO.ID_USUARIO_INFO%TYPE := 0;
+    BEGIN
+        SELECT
+            GET_ID_USUARIO_INFO(P_DATA => TO_CHAR(P_ID_USER), P_BY => 'ID_USER')
+        INTO 
+            V_ID_USUARIO_INFO
+        FROM
+            DUAL;
+    
+        IF V_ID_USUARIO_INFO = 0 THEN
+            P_REPLY := 'NE';
+        END IF;
+        
+        IF P_TELEFONO IS NOT NULL THEN
+        
+            DYNAMIC_UPDATE('USUARIOS_INFO', 'TELEFONO', TO_CHAR(P_TELEFONO), 'ID_USUARIO_INFO = ' || TO_CHAR(V_ID_USUARIO_INFO));
+        
+            P_REPLY := 'SE/CO';
+        END IF;
+        
+        IF P_CORREO IS NOT NULL THEN
+        
+            DYNAMIC_UPDATE('USUARIOS_INFO', 'CORREO', P_CORREO, 'ID_USUARIO_INFO = ' || TO_CHAR(V_ID_USUARIO_INFO));
+            
+            P_REPLY := 'SE/TE';
+        END IF;
+        
+        IF P_DIRECCION IS NOT NULL THEN
+        
+            DYNAMIC_UPDATE('USUARIOS_INFO', 'DIRECCION', P_DIRECCION, 'ID_USUARIO_INFO = ' || TO_CHAR(V_ID_USUARIO_INFO));
+    
+            P_REPLY := 'SE';
+        END IF;
+    
+    END EDITAR_INFORMACION_USUARIO;
+    
+    PROCEDURE CAMBIAR_PASSWORD (
+        P_ID_USER  IN USUARIOS.ID_USER%TYPE,
+        P_PASSWORD IN USUARIOS.PASSWORD%TYPE,
+        P_REPLY    OUT VARCHAR2
+    ) AS
+        V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+        V_RANDOM_PASS VARCHAR2(200);
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => TO_CHAR(P_ID_USER), P_DATA2 => '', P_BY => 'ID_USER')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_REPLY := 'Usuario no existe';
+        ELSE
+            DYNAMIC_UPDATE('USUARIOS', 'PASSWORD', P_PASSWORD, 'ID_USER = ' || TO_CHAR(V_ID_USER));
+            
+            P_REPLY := 'Contrasenha modificada correctamente';
+        END IF;
+    
+    END CAMBIAR_PASSWORD;
+    
+    PROCEDURE RECUPERAR_CUENTA (
+        P_CORREO   IN USUARIOS_INFO.CORREO%TYPE,
+        P_CLAVE    OUT USUARIOS.PASSWORD%TYPE,
+        P_REPLY    OUT VARCHAR2
+    ) AS
+        V_ID_USUARIO_INFO USUARIOS_INFO.ID_USUARIO_INFO%TYPE := 0;
+        V_ID_USER  USUARIOS_INFO.ID_USER%TYPE := 0;
+        V_RANDOM_PASS  USUARIOS.PASSWORD%TYPE := 0;
+    BEGIN
+        SELECT -- Podria ser un cursor
+            ID_USUARIO_INFO,
+            ID_USER
+        INTO 
+            V_ID_USUARIO_INFO,
+            V_ID_USER
+        FROM
+            USUARIOS_INFO
+        WHERE
+            CORREO = P_CORREO;
+    
+        IF V_ID_USUARIO_INFO = 0 THEN
+            P_REPLY := 'No existe una cuenta con el correo ingresado';
+        ELSE
+            V_RANDOM_PASS := DBMS_RANDOM.string('x',10);
+            
+            DYNAMIC_UPDATE('USUARIOS', 'PASSWORD', V_RANDOM_PASS, 'ID_USER = ' || TO_CHAR(V_ID_USER));
+                
+            P_CLAVE := V_RANDOM_PASS;
+            P_REPLY := 'Contrasenha temporal creada!';
+        END IF;
+    END RECUPERAR_CUENTA;
+
+END USERS; 
+
+-- CUENTAS Package
+----------------------------------------------------------
+BEGIN
+  EXECUTE IMMEDIATE 'DROP PACKAGE CUENTAS';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -4043 THEN
+      RAISE;
+    END IF;
+END;
+
+CREATE PACKAGE PKG_CUENTAS AS 
+   PROCEDURE AGREGAR_CUENTA_BANCARIA(P_ID_USER IN CUENTAS.ID_USER%TYPE,
+    P_ID_DIVISA   IN CUENTAS.ID_DIVISA%TYPE,
+    P_ID_MOVIMIENTO  IN CUENTAS.ID_MOVIMIENTO%TYPE,
+    P_IBAN   IN CUENTAS.IBAN%TYPE,
+    P_SALDO_TOTAL   IN CUENTAS.SALDO_TOTAL%TYPE,
+    P_SALDO_ACTUAL   IN CUENTAS.SALDO_ACTUAL%TYPE,
+    P_SALDO_RETENIDO   IN CUENTAS.SALDO_RETENIDO%TYPE,
+    P_CREDITO   IN CUENTAS.CREDITO%TYPE,
+    P_REPLY OUT VARCHAR2); 
+    
+    PROCEDURE ELIMINAR_CUENTA_BANCARIA(P_IBAN IN CUENTAS.IBAN%TYPE,
+    P_REPLY OUT VARCHAR2);
+    
+    PROCEDURE CARGAR_CUENTAS_BANCARIAS(P_ID_USER IN CUENTAS.ID_USER%TYPE,
+    P_CUENTAS OUT SYS_REFCURSOR,
+    P_REPLY OUT VARCHAR2);
+    
+    PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES(P_ID_USER       IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
+    P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
+    P_TRANSACCIONES OUT SYS_REFCURSOR,
+    P_REPLY         OUT VARCHAR2);
+    
+    PROCEDURE TRANSFERENCIA(P_ID_TRANSACCION IN HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE,
+    P_ID_USER IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
+    P_ID_CUENTA_ORIGEN IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
+    P_ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE,
+    P_MONTO IN HISTORIAL_TRANSACCIONES.MONTO%TYPE,
+    P_REPLY OUT VARCHAR2);
+    
+    PROCEDURE DYNAMIC_UPDATE(P_TABLE IN VARCHAR2,
+    P_COLUMN IN VARCHAR2,
+    P_VALUE IN VARCHAR2,
+    P_WHERE IN VARCHAR2);
+    
+    PROCEDURE DYNAMIC_DELETE(P_TABLE IN VARCHAR2,
+    P_WHERE IN VARCHAR2);
+END PKG_CUENTAS;
+
+CREATE OR REPLACE PACKAGE BODY PKG_CUENTAS AS  
+    PROCEDURE AGREGAR_CUENTA_BANCARIA (
+        P_ID_USER IN CUENTAS.ID_USER%TYPE,
+        P_ID_DIVISA   IN CUENTAS.ID_DIVISA%TYPE,
+        P_ID_MOVIMIENTO  IN CUENTAS.ID_MOVIMIENTO%TYPE,
+        P_IBAN   IN CUENTAS.IBAN%TYPE,
+        P_SALDO_TOTAL   IN CUENTAS.SALDO_TOTAL%TYPE,
+        P_SALDO_ACTUAL   IN CUENTAS.SALDO_ACTUAL%TYPE,
+        P_SALDO_RETENIDO   IN CUENTAS.SALDO_RETENIDO%TYPE,
+        P_CREDITO   IN CUENTAS.CREDITO%TYPE,
+        P_REPLY OUT VARCHAR2
+    ) AS
+        V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+        V_ID_CUENTA  CUENTAS.ID_CUENTA%TYPE := 0;
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => P_ID_USER, P_DATA2 => '', P_BY => 'ID_USER')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_REPLY := 'Usuario no existe';
+        ELSE
+            SELECT
+                GET_ID_CUENTA(P_DATA => P_IBAN, P_BY => 'IBAN')
+            INTO
+                V_ID_CUENTA
+            FROM
+                DUAL;
+                
+            IF V_ID_CUENTA != 0 THEN
+                P_REPLY := 'Cuenta ya existe';
+            ELSE
+                INSERT INTO CUENTAS
+                    (ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
+                VALUES
+                    (P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
+                    
+                P_REPLY := 'Tarjeta agregada correctamente';
+            END IF;
+        END IF;
+    END AGREGAR_CUENTA_BANCARIA;
+    
+    PROCEDURE ELIMINAR_CUENTA_BANCARIA (
+        P_IBAN IN CUENTAS.IBAN%TYPE,
+        P_REPLY OUT VARCHAR2
+    ) AS
+        V_ID_CUENTA  CUENTAS.ID_CUENTA%TYPE := 0;
+    BEGIN
+        SELECT
+            GET_ID_CUENTA(P_DATA => P_IBAN, P_BY => 'IBAN')
+        INTO
+            V_ID_CUENTA
+        FROM
+            DUAL;
+    
+        IF V_ID_CUENTA = 0 THEN
+            P_REPLY := 'Cuenta bancaria no existe';
+        ELSE
+            DYNAMIC_DELETE('CUENTAS', 'IBAN = ' || '''' ||  P_IBAN || '''');
+                
+            P_REPLY := 'Cuenta bancaria eliminada correctamente';
+        END IF;
+    END ELIMINAR_CUENTA_BANCARIA;
+    
+    PROCEDURE CARGAR_CUENTAS_BANCARIAS (
+        P_ID_USER IN CUENTAS.ID_USER%TYPE,
+        P_CUENTAS OUT SYS_REFCURSOR,
+        P_REPLY OUT VARCHAR2
+    ) AS
+        V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_REPLY := 'Usuario no existe';
+        ELSE
+            OPEN P_CUENTAS FOR SELECT
+                                   *
+                               FROM
+                                   CUENTAS
+                               WHERE
+                                   ID_USER = P_ID_USER;
+    
+        END IF;
+    END CARGAR_CUENTAS_BANCARIAS;
+    
+    PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
+        P_ID_USER       IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
+        P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
+        P_TRANSACCIONES OUT SYS_REFCURSOR,
+        P_REPLY         OUT VARCHAR2
+    ) AS
+        V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_REPLY := 'Usuario no existe';
+        ELSE
+            OPEN P_TRANSACCIONES FOR SELECT
+                                         *
+                                     FROM
+                                         HISTORIAL_TRANSACCIONES
+                                     WHERE
+                                             ID_CUENTA_ORIGEN = P_ID_CUENTA
+                                         OR  ID_CUENTA_DESTINO = P_ID_CUENTA;
+        END IF;
+    END CARGAR_HISTORIAL_TRANSACCIONES;
+    
+    PROCEDURE TRANSFERENCIA (
+        P_ID_TRANSACCION IN HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE,
+        P_ID_USER IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
+        P_ID_CUENTA_ORIGEN IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
+        P_ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE,
+        P_MONTO IN HISTORIAL_TRANSACCIONES.MONTO%TYPE,
+        P_REPLY OUT VARCHAR2
+    ) AS
+        V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+        V_ID_TRANSACCION FACTURAS.ID_TRANSACCION%TYPE;
+        V_SALDO_ACTUAL_ORIGEN CUENTAS.SALDO_ACTUAL%TYPE;
+        V_SALDO_ACTUAL_DESTINO CUENTAS.SALDO_ACTUAL%TYPE;
+        V_ID_CUENTA_ORIGEN CUENTAS.ID_CUENTA%TYPE;
+        V_ID_CUENTA_DESTINO CUENTAS.ID_CUENTA%TYPE;
+        V_DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => TO_CHAR(P_ID_USER), P_DATA2 => '',  P_BY => 'ID_USER')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_REPLY := 'Usuario no existe';
+        ELSE
+            SELECT
+                ID_TRANSACCION
+            INTO V_ID_TRANSACCION
+            FROM
+                HISTORIAL_TRANSACCIONES
+            WHERE
+                ID_TRANSACCION = P_ID_TRANSACCION;
+                
+            SELECT
+                C1.SALDO_TOTAL,
+                C2.SALDO_TOTAL,
+                HT.DESCRIPCION
+            INTO
+                V_SALDO_ACTUAL_ORIGEN,
+                V_SALDO_ACTUAL_DESTINO,
+                V_DESCRIPCION
+            FROM
+                HISTORIAL_TRANSACCIONES HT
+                INNER JOIN CUENTAS C1
+                     ON HT.ID_CUENTA_ORIGEN = C1.ID_CUENTA
+                INNER JOIN CUENTAS C2
+                     ON HT.ID_CUENTA_DESTINO = C2.ID_CUENTA
+            WHERE
+                ID_TRANSACCION = V_ID_TRANSACCION;
+                
+            IF V_SALDO_ACTUAL_ORIGEN > P_MONTO THEN
+                P_REPLY := 'Usuario no tiene el monto disponible';
+            ELSE
+                INSERT INTO 
+                    HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+                VALUES
+                    (V_ID_USER, V_ID_CUENTA_ORIGEN, V_ID_CUENTA_DESTINO, 200, P_MONTO, V_DESCRIPCION);
+    
+                UPDATE HISTORIAL_TRANSACCIONES
+                SET
+                    ID_STATUS = 200
+                WHERE
+                    ID_TRANSACCION = V_ID_TRANSACCION;
+            END IF;
+    
+        END IF;
+    END TRANSFERENCIA;
+    
+    PROCEDURE DYNAMIC_UPDATE (
+        P_TABLE IN VARCHAR2,
+        P_COLUMN IN VARCHAR2,
+        P_VALUE IN VARCHAR2,
+        P_WHERE IN VARCHAR2
+    ) AS
+        UPDATE_SQL VARCHAR2(300);
+    BEGIN
+        UPDATE_SQL := 'UPDATE ' || P_TABLE ||
+            ' SET ' || P_COLUMN ||' = ' || '''' ||  P_VALUE || '''' ||
+            ' WHERE ' || P_WHERE;
+        
+        EXECUTE IMMEDIATE UPDATE_SQL;
+    END;
+    
+    DECLARE
+        -- PARAMETERS
+        P_TABLE VARCHAR2(200) := 'USUARIOS';
+        P_COLUM VARCHAR2(200) := 'PASSWORD';
+        P_VALUE VARCHAR2(200) := 'JOSEPH4';
+        P_WHERE VARCHAR2(200) := 'ID_USER = ' || TO_CHAR(1);
+    BEGIN
+        DYNAMIC_UPDATE(P_TABLE, P_COLUM, P_VALUE, P_WHERE);
+    END DYNAMIC_UPDATE;
+    
+    PROCEDURE DYNAMIC_DELETE(
+        P_TABLE IN VARCHAR2,
+        P_WHERE IN VARCHAR2
+    ) AS
+        DELETE_SQL VARCHAR2(300);
+    BEGIN
+        DELETE_SQL := 'DELETE FROM ' || P_TABLE || ' WHERE ' || P_WHERE;
+        
+        EXECUTE IMMEDIATE DELETE_SQL;
+    END DYNAMIC_DELETE;
+    
+END PKG_CUENTAS; 
+
+-- SERVICES Package
+----------------------------------------------------------
+BEGIN
+  EXECUTE IMMEDIATE 'DROP PACKAGE SERVICES';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -4043 THEN
+      RAISE;
+    END IF;
+END;
+
+CREATE PACKAGE SERVICES AS 
+   PROCEDURE CARGAR_SERVICIOS(P_SERVICIOS OUT SYS_REFCURSOR);
+END SERVICES;
+
+CREATE OR REPLACE PACKAGE BODY SERVICES AS  
+    PROCEDURE CARGAR_SERVICIOS (
+        P_SERVICIOS OUT SYS_REFCURSOR
+    ) AS
+    BEGIN
+        OPEN P_SERVICIOS FOR SELECT
+                               *
+                           FROM
+                               SERVICIOS;
+    END CARGAR_SERVICIOS;
+END SERVICES; 
+
+-- FACTURAS Package
+----------------------------------------------------------
+BEGIN
+  EXECUTE IMMEDIATE 'DROP PACKAGE PKG_FACTURAS';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -4043 THEN
+      RAISE;
+    END IF;
+END;
+
+CREATE PACKAGE PKG_FACTURAS AS 
+   PROCEDURE VERIFICAR_FACTURA(P_ID_USER IN CUENTAS.ID_USER%TYPE,
+        P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
+        P_FACTURA OUT SYS_REFCURSOR,
+        P_REPLY OUT VARCHAR2);
+        
+    PROCEDURE PAGAR_FACTURA(P_ID_FACTURA IN FACTURAS.ID_FACTURA%TYPE,
+        P_ID_USER IN CUENTAS.ID_USER%TYPE,
+        P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
+        P_MONTO IN FACTURAS.ID_SERVICIO%TYPE,
+        P_REPLY OUT VARCHAR2);
+END PKG_FACTURAS;
+    
+CREATE OR REPLACE PACKAGE BODY PKG_FACTURAS AS  
+    PROCEDURE VERIFICAR_FACTURA (
+        P_ID_USER IN CUENTAS.ID_USER%TYPE,
+        P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
+        P_FACTURA OUT SYS_REFCURSOR,
+        P_REPLY OUT VARCHAR2
+        ) AS
+            V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+        BEGIN
+            SELECT
+                GET_ID_USER(P_DATA => P_ID_USER, 2 => '', P_BY => 'ID_USER')
+            INTO
+                V_ID_USER
+            FROM
+                DUAL;
+        
+            IF V_ID_USER = 0 THEN
+                P_REPLY := 'Usuario no existe';
+            ELSE
+                OPEN P_FACTURA FOR SELECT
+                                       F.ID_FACTURA,
+                                       F.ID_TRANSACCION,
+                                       F.ID_SERVICIO,
+                                       F.ID_STATUS
+                                   FROM
+                                            FACTURAS F
+                                       INNER JOIN HISTORIAL_TRANSACCIONES HT
+                                        ON F.ID_TRANSACCION = HT.ID_TRANSACCION
+                                   WHERE
+                                           F.ID_SERVICIO = P_ID_SERVICIO
+                                       AND HT.ID_USER = P_ID_USER
+                                       AND F.ID_STATUS = 300;
+            END IF;
+    END VERIFICAR_FACTURA;
+    
+    PROCEDURE PAGAR_FACTURA (
+        P_ID_FACTURA IN FACTURAS.ID_FACTURA%TYPE,
+        P_ID_USER IN CUENTAS.ID_USER%TYPE,
+        P_ID_SERVICIO IN FACTURAS.ID_SERVICIO%TYPE,
+        P_MONTO IN FACTURAS.ID_SERVICIO%TYPE,
+        P_REPLY OUT VARCHAR2
+    ) AS
+        V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+        V_ID_TRANSACCION FACTURAS.ID_TRANSACCION%TYPE;
+        V_SALDO_ACTUAL_ORIGEN CUENTAS.SALDO_ACTUAL%TYPE;
+        V_SALDO_ACTUAL_DESTINO CUENTAS.SALDO_ACTUAL%TYPE;
+        V_ID_CUENTA_ORIGEN CUENTAS.ID_CUENTA%TYPE;
+        V_ID_CUENTA_DESTINO CUENTAS.ID_CUENTA%TYPE;
+        V_DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
+    BEGIN
+        SELECT
+            GET_ID_USER(P_DATA => P_ID_USER, P_BY => 'ID_USER')
+        INTO
+            V_ID_USER
+        FROM
+            DUAL;
+    
+        IF V_ID_USER = 0 THEN
+            P_REPLY := 'Usuario no existe';
+        ELSE
+            SELECT
+                ID_TRANSACCION
+            INTO V_ID_TRANSACCION
+            FROM
+                FACTURAS
+            WHERE
+                ID_FACTURA = P_ID_FACTURA;
+                
+            SELECT 
+                C1.SALDO_TOTAL,
+                C2.SALDO_TOTAL,
+                HT.DESCRIPCION
+            INTO
+                V_SALDO_ACTUAL_ORIGEN,
+                V_SALDO_ACTUAL_DESTINO,
+                V_DESCRIPCION
+            FROM
+                HISTORIAL_TRANSACCIONES HT
+                INNER JOIN CUENTAS C1
+                     ON HT.ID_CUENTA_ORIGEN = C1.ID_CUENTA
+                INNER JOIN CUENTAS C2
+                     ON HT.ID_CUENTA_DESTINO = C2.ID_CUENTA
+            WHERE
+                ID_TRANSACCION = V_ID_TRANSACCION;
+                
+            IF V_SALDO_ACTUAL_ORIGEN > P_MONTO THEN
+                P_REPLY := 'Usuario no tiene el monto disponible';
+            ELSE
+                INSERT INTO 
+                    HISTORIAL_TRANSACCIONES(ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION)
+                VALUES
+                    (V_ID_USER, V_ID_CUENTA_ORIGEN, V_ID_CUENTA_DESTINO, 200, P_MONTO, V_DESCRIPCION);
+    
+                UPDATE FACTURAS
+                                SET
+                            ID_STATUS = 200
+                        WHERE
+                            ID_FACTURA = ID_FACTURA;
+            END IF;
+    
+        END IF;
+    END PAGAR_FACTURA;
+END PKG_FACTURAS; 
