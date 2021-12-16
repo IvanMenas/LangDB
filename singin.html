@@ -32,38 +32,38 @@
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
-                    <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre"style="width: 100px;">
+                    <input type="text" class="form-control" required="required" name="nombre" id="nombre" placeholder="Nombre"style="width: 100px;">
 
                     <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
-                    <input type="text" class="form-control" name="apellido" id="apellido" placeholder="Apellidos">
+                    <input type="text" class="form-control"  name="apellido" id="apellido" required="required" placeholder="Apellidos">
                 </div>
             </div>
             
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-id-card-o"></i></span>
-                    <input type="text" class="form-control" name="cedula" id="cedula" placeholder="Cédula">
+                    <input type="text" class="form-control" required="required" name="cedula" id="cedula" placeholder="Cédula">
                 </div>
             </div>
         
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                    <input type="text" class="form-control" name="username" id="username" placeholder="Username" >
+                    <input type="text" class="form-control" required="required" name="username" id="username" placeholder="Username" >
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-phone"></i></span>
-                    <input type="text" class="form-control" name="telefono" id="telefono" placeholder="Télefono">
+                    <input type="text" class="form-control" required="required" name="telefono" id="telefono" placeholder="Télefono">
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-map-signs"></i></span>
-                    <input type="text" class="form-control" name="direccion"  id="direccion" placeholder="Dirección">
+                    <input type="text" class="form-control" required="required" name="direccion"  id="direccion" placeholder="Dirección">
                 </div>
             </div>
 
@@ -71,19 +71,19 @@
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-paper-plane"></i></span>
-                    <input type="email" class="form-control" name="correo" id="correo" placeholder="Correo Electronico" >
+                    <input type="email" class="form-control" required="required" name="correo" id="correo" placeholder="Correo Electronico" >
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                    <input type="password" class="form-control" name="password" id="password" placeholder="Contraseña" >
+                    <input type="password" class="form-control" required="required" name="password" id="password" placeholder="Contraseña" >
                 </div>
             </div>
 
            <div class="form-group">
-                <button type="submit"  data-dismiss="alert" onclick="registrar()" class="btn btn-primary btn-lg">Registrarse</button>
+                <button type="submit" onclick="registrar()" data-dismiss="alert"  class="btn btn-primary btn-lg">Registrarse</button>
             </div>
         </form>
         <div class="text-center"><b>¿Ya tienes una cuenta?</b> <a href="login.html">Iniciar Sesión</a></div>

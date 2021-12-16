@@ -92,7 +92,7 @@ function loadAccountGrid(){
             var account = accounts[i];
             $("#accountGrid").append($("<div>").attr('id', 'saldo'+ account.ID_CUENTA).attr('class', 'w3-third w3-right').append('<br>'));
             $("#saldo"+ account.ID_CUENTA).append($("<p>").attr('id', 'saldoP'+ account.ID_CUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
-            append('Saldo<br>'+account.SALDO_ACTUAL + ' ' + account.NOMBRE));
+            append('Saldo<br>'+account.SALDO_TOTAL + ' ' + account.NOMBRE));
 
             $("#accountGrid").append($("<div>").attr('id', 'prod'+ account.ID_CUENTA).attr('class', 'w3-third w3-right').append('<br>'));
             $("#prod"+ account.ID_CUENTA).append($("<p>").attr('id', 'prodP'+ account.ID_CUENTA).attr('class', 'w3-text-grey w3-margin-right w3-center').
@@ -357,8 +357,9 @@ function execTransac(){
     $("#dialog-confirm").dialog('option', 'buttons', {
         'Yes': function () {
             idCuentaOrigen = document.getElementById('cbbAccount').value
-            $.post('classes/class-manager.php', {f: "transferencia", idUser: localStorage.getItem('IDUSER'), idCuentaOrigen: idCuentaOrigen, idCuentaDestino: 13, monto: 6500}, function(response){
-                console.log(response)
+            console.log(idCuentaOrigen, localStorage.getItem('IDUSER'))
+            $.post('classes/class-manager.php', {f: "transferencia", idUser: localStorage.getItem('IDUSER'), idCuentaOrigen: idCuentaOrigen, idCuentaDestino: 81, monto: 6500}, function(response){
+                alert(response.d)
             });
 
             $(this).dialog("close");
