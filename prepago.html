@@ -13,13 +13,14 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="./js/manager.js"></script>
 
 <style>
 body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .w3-bar,h1,button {font-family: "Montserrat", sans-serif}
 .fa-anchor,.fa-coffee {font-size:200px}
 </style>
-<body>
+<body onload="loadAccountCbb()">
 
 <!-----------------------------------------------------Navbar----------------------------------------------------->
 <div class="w3-top">
@@ -73,6 +74,8 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
      <b> Número de Télefono:</b> <br/>
       <input  type="text" style="width:180px;" placeholder="Número de Télefono"/><br />
       <br/>
+      <b>Cuenta:</b> <br/>
+      <select id="cbbAccount" style="font-size:Medium;width:296px;height:25px;"></select><br/><br/>
 
       <b> Monto a Cargar(CRC):</b> <br/>
       <input  type="text" style="width:180px;" placeholder="Monto a Cargar(CRC)"/><br />

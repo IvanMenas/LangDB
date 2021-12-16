@@ -256,25 +256,13 @@ function initSinpe(){
 }
 
 function loadAccountCbb(){ 
-    accounts = getUserAccount(1);
+    accounts = getUserAccount(localStorage.getItem('IDUSER'));
     console.log(localStorage.getItem('IDUSER'))
     setTimeout(() => {
         console.log(accounts)
         for (var i = 0; i < accounts.length; i++) {
             var account = accounts[i];
             $("#cbbAccount").append($("<option>").attr('id', 'service'+ account.ID_CUENTA).append(account.IBAN + ' ' + account.NOMBRE).attr('value', account.ID_CUENTA));
-        }
-    }, 1000);
-}
-
-function loadAccountName(){ 
-    accounts = getUserAccount(1);
-    console.log(localStorage.getItem('IDUSER'))
-    setTimeout(() => {
-        console.log(accounts)
-        for (var i = 0; i < accounts.length; i++) {
-            var account = accounts[i];
-            $("#NameAccount").append($("<option>").attr('id', 'service'+ account.ID_USUARIO_INFO).append(account.NOMBRE + ' ' + account.APELLIDO).attr('value', account.ID_USUARIO_INFO));
         }
     }, 1000);
 }
@@ -319,19 +307,43 @@ function ProfileEdit(){
     console.log(localStorage.getItem('IDUSER'))
     console.log(telefono)
     console.log(correo)
-  //  setTimeout(() => {
-        $.post('classes/class-manager.php', {f: "EditProfile", iduser: localStorage.getItem('IDUSER'), telefono: telefono, correo: correo}, 
-        function(response){
-            console.log(response)
-            done = response.d;
-            msg = "Cuenta Modificada";
-            if(!done){
-                msg = "Error no se pudo modificar";
-            }
-            alert(msg)
-        }).done();
- //   }, 1000);
+    $.post('classes/class-manager.php', {f: "EditProfile", iduser: localStorage.getItem('IDUSER'), telefono: telefono, correo: correo}, 
+    function(response){
+        console.log(response)
+        done = response.d;
+        msg = "Cuenta Modificada";
+        if(!done){
+            msg = "Error no se pudo modificar";
+        }
+        alert(msg)
+    }).done();
 }
 
+//Historial transaccional
 
+function openHistorialModal(){
+    $("#myModal").modal()
+    $("#cbbAccount").find('option').remove()
+    $("#tranBody").find('tr').remove()
+    loadAccountCbb()
+}
+
+function loadHistorialModal(){
+    $("#tranBody").find('tr').remove()
+    idCuenta = document.getElementById("cbbAccount").value;
+    $.post('classes/class-manager.php', {f: "loadHistory", idCuenta: idCuenta}, 
+    function(response){
+        historial = response.d
+        for (var i = 0; i < historial.length; i++) {
+            transaccion = historial[i]
+            $("#tranBody").append($("<tr>").attr("class", "info")
+            .append($("<td>").append(transaccion.DESCRIPCION))
+            .append($("<td>").append(transaccion.ORIGEN))
+            .append($("<td>").append(transaccion.DESTINO))
+            .append($("<td>").append(transaccion.MONTO))
+            );
+            console.log(document.getElementById('tranBody'))
+        }
+    }).done();
+}
 

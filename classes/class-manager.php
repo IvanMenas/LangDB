@@ -46,6 +46,9 @@ try{
 		case 'execSinpe':
 			$r->d = $dbm->execSinpeMov(filterInput('iduser'), filterInput('idCuentaOrigen'), filterInput('idCuentaDestino'), filterInput('monto'));
 			break;
+		case 'loadHistory':
+			$r->d = $dbm->loadHistory(filterInput('idCuenta'));
+			break;
 		break;
     }
 	

@@ -103,7 +103,7 @@ class dbManager {
             $out = "";
             
             $sql_stmt = $this-> conn  -> prepare("
-                CALL AGREGAR_CUENTA_BANCARIA($iduser, $idDivisa, 1, '$idIBAN', 0, 0, 0, $credito, :out)
+                CALL AGREGAR_CUENTA_BANCARIA($iduser, $idDivisa, 1, '$idIBAN', 60000, 60000, 0, $credito, :out)
             ");
             $sql_stmt->bindParam(':out',$out,PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 40);
 
@@ -181,6 +181,24 @@ class dbManager {
 
             $sql_stmt->execute();
             return $out;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    } 
+    
+    public function loadHistory($idCuenta){
+        try{
+            $idCuenta = (int)$idCuenta;
+            
+            $sql_stmt = $this-> conn  -> prepare("
+            SELECT DESCRIPCION, C.IBAN AS ORIGEN, R.IBAN AS DESTINO, MONTO FROM HISTORIAL_TRANSACCIONES H
+            JOIN CUENTAS C ON C.ID_CUENTA = ID_CUENTA_ORIGEN
+            JOIN CUENTAS R ON R.ID_CUENTA = ID_CUENTA_DESTINO
+            WHERE ID_CUENTA_ORIGEN =  $idCuenta  OR  ID_CUENTA_DESTINO =  $idCuenta
+            ");
+            $sql_stmt->execute();
+            $result = $sql_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
         }catch(PDOException  $e){
             return "Error: " .$e->getMessage();
         }
