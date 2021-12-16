@@ -49,11 +49,14 @@ try{
 		case 'loadHistory':
 			$r->d = $dbm->loadHistory(filterInput('idCuenta'));
 			break;
+		case 'transferencia':
+			$r->d = $dbm->transferencia(filterInput('idUser'), filterInput('idCuentaOrigen'), filterInput('idCuentaDestino'), filterInput('monto'));
+			break;
 		break;
     }
 	
 }catch  (Exception $ex){
-
+	// $r->errMsg = $ex;
 }
 
 function filterInput($s) {

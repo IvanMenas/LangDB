@@ -202,6 +202,27 @@ class dbManager {
         }catch(PDOException  $e){
             return "Error: " .$e->getMessage();
         }
-    } 
+    }
+    
+    public function transferencia($idUser, $idCuentaOrigen, $idCuentaDestino, $monto){
+        try{
+            $idUser = (int)$idUser;
+            $idCuentaOrigen = (int)$idCuentaOrigen;
+            $idCuentaDestino = (int)$idCuentaDestino;
+            $out = " ";
+            $monto = (float)$monto;
+            
+            
+            //return array($idUser, $idCuentaOrigen, $idCuentaDestino, $monto);
+            $sql_stmt = $this-> conn  -> prepare("
+                CALL TRANSFERENCIA($idUser, $idCuentaOrigen, $idCuentaDestino, $monto, :out)
+            ");
+            $sql_stmt->bindParam(':out',$out,PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 40);
+            $sql_stmt->execute();
+            return $out;
+        }catch(PDOException  $e){
+            return "Error: " .$e->getMessage();
+        }
+    }
 }   
 ?>

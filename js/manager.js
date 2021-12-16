@@ -196,7 +196,7 @@ function loadCompanies(){
             $("#service"+ company.ID_EMPRESA).append($("<br>"));
             $("#service"+ company.ID_EMPRESA).append($("<div>").attr('id', 'tite'+ company.ID_EMPRESA)
             .attr('class', 'w3-bar-item w3-button  w3-blue'));
-            $("#tite"+ company.ID_EMPRESA).append($("<a>").attr('id', company.ID_EMPRESA+info.form).css('color', 'white').attr('href', info.form).append(company.NOMBRE))
+            $("#tite"+ company.ID_EMPRESA).append($("<a>").attr('id', company.ID_EMPRESA+info.form).css('color', 'white').attr('href', info.form+"?key="+company.ID_EMPRESA).append(company.NOMBRE))
             console.log(document.getElementById(company.ID_EMPRESA+info.form))
             console.log(info.form)
             console.log(company.ID_EMPRESA)
@@ -204,14 +204,12 @@ function loadCompanies(){
     });
 }
 
-
 function getServiceInfo(idServ){
     var info = {};
    switch(idServ){
        case "9": 
             info.file = "images/CCSS.png";
             info.form = "PagoServicio.html";
-            
        break;
        case "10": 
             info.file = "images/AYA.png";
@@ -350,3 +348,25 @@ function loadHistorialModal(){
     }).done();
 }
 
+// Validar transaccion
+
+function execTransac(){
+    $("#dialog-confirm").dialog({resizable: false, height: 'auto', width: 400, modal: true, position: {my: 'center top', at: 'center top-25'}, closeOnEscape: true});
+    $("#dialog-confirm").dialog('option', 'title', 'Information');
+    $("#dialog-confirm").empty().append(`<p>¿Desea realizar pago?</p>`);
+    $("#dialog-confirm").dialog('option', 'buttons', {
+        'Yes': function () {
+            idCuentaOrigen = document.getElementById('cbbAccount').value
+            $.post('classes/class-manager.php', {f: "transferencia", idUser: localStorage.getItem('IDUSER'), idCuentaOrigen: idCuentaOrigen, idCuentaDestino: 13, monto: 6500}, function(response){
+                console.log(response)
+            });
+
+            $(this).dialog("close");
+            $("#dialog-confirm").dialog("destroy");
+        },
+        'No': function () {
+            $(this).dialog("close");
+            $("#dialog-confirm").dialog("destroy");
+        }
+    });
+}
