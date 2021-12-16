@@ -1,132 +1,6 @@
 -- Database Creation
 --------------------------------------------------------------------------------------------------------------------------------
 
--- Email Configuration
-----------------------------------------------------------
---DECLARE
---  l_acl_name         VARCHAR2(30) := 'utl_tcp.xml';
---  l_ftp_server_ip    VARCHAR2(20) := 'smtp.gmail.com';
---  l_ftp_server_name  VARCHAR2(20) := 'smtp.gmail.com';
---  l_username         VARCHAR2(30) := 'ROOT';
---BEGIN
---  DBMS_NETWORK_ACL_ADMIN.create_acl (
---    acl          => l_acl_name, 
---    description  => 'Allow connections using UTL_TCP',
---    principal    => l_username,
---    is_grant     => TRUE, 
---    privilege    => 'connect',
---    start_date   => SYSTIMESTAMP,
---    end_date     => NULL);
---
---  COMMIT;
---
---  DBMS_NETWORK_ACL_ADMIN.add_privilege ( 
---    acl         => l_acl_name, 
---    principal   => l_username,
---    is_grant    => FALSE, 
---    privilege   => 'connect', 
---    position    => NULL, 
---    start_date  => NULL,
---    end_date    => NULL);
---
---  COMMIT;
---
---  DBMS_NETWORK_ACL_ADMIN.assign_acl (
---    acl         => l_acl_name,
---    host        => l_ftp_server_ip, 
---    lower_port  => NULL,
---    upper_port  => NULL);
---
---  DBMS_NETWORK_ACL_ADMIN.assign_acl (
---    acl         => l_acl_name,
---    host        => l_ftp_server_name, 
---    lower_port  => NULL,
---    upper_port  => NULL);
---
---  COMMIT;
---END;
---
---GRANT EXECUTE, DEBUG ON SEND_MAIL_TEST to ROOT;
---
---create or replace noneditionable package SEND_MAIL_TEST
---is
---       procedure mail_test(
---        msg_to in varchar2
---       ,msg_subject in varchar2
---       ,msg_text in varchar2
---  );
---end;
---/
---create or replace noneditionable package body SEND_MAIL_TEST
---IS
---procedure write_mime_header_test (
---
---      p_conn in out nocopy utl_smtp.connection
---    , p_name in varchar2
---    , p_value in varchar2
---   )
---   is
---   begin
---      utl_smtp.write_data ( p_conn
---                          , p_name || ': ' || p_value || utl_tcp.crlf
---      );
---   end;
---procedure mail_test(
---  msg_to in varchar2
--- ,msg_subject in varchar2
--- ,msg_text in varchar2
---  )
---is
---  mail_conn utl_smtp.connection;
---  msg_from varchar2(50) := 'joemesoto@gmail.com';-----Type Your Gmail Email ID in encoded Format----
---  mailhost VARCHAR2(50) := 'smtp.gmail.com';
---  nls_charset    varchar2(255);
---  g_mailer_id constant varchar2 (256) := 'Mailer by Oracle UTL_SMTP';
---BEGIN
---
---  select value
---      into   nls_charset
---      from   nls_database_parameters
---      where  parameter = 'NLS_CHARACTERSET';
---  mail_conn := utl_smtp.open_connection(mailhost, 587,wallet_path => 'D:\App\admin\orcl\wallet'/*Your Wallet Path*/,wallet_password => 'Bl@ckie072701!'/* Your Wallet Password*/
---  ,secure_connection_before_smtp => false);
---  utl_smtp.ehlo(mail_conn,'smtp.gmail.com');
---  utl_smtp.starttls(mail_conn);
---  utl_smtp.command(mail_conn, 'AUTH LOGIN');
---  utl_smtp.command(mail_conn, 'am9lbWVzb3RvQGdtYWlsLmNvbQ=='); --Type Your Gmail Email ID in encoded Format----
---  utl_smtp.command(mail_conn, 'QmxAY2tpZTA3Mjch'); --Type Your Gmail Password in encoded Format------
---  utl_smtp.command(mail_conn, 'MAIL FROM: <'||msg_from||'>');
---  utl_smtp.command(mail_conn, 'RCPT TO: <'||msg_to||'>');
---  utl_smtp.open_data (mail_conn);
---  write_mime_header_test (mail_conn, 'From', msg_from);
---  write_mime_header_test (mail_conn, 'To', msg_to);
---  write_mime_header_test (mail_conn, 'Subject', msg_subject);
---  write_mime_header_test (mail_conn, 'Content-Type', 'text/plain');
---  write_mime_header_test (mail_conn, 'X-Mailer', g_mailer_id);
---  utl_smtp.write_data (mail_conn, utl_tcp.crlf);
---  utl_smtp.write_data (mail_conn, msg_text);
---  utl_smtp.close_data (mail_conn);
---  utl_smtp.quit (mail_conn);
---  exception
---      when others
---      then
---         begin
---           utl_smtp.quit(mail_conn);
---         exception
---           when others then
---             null;
---         end;
---         raise_application_error(-20000,'Failed to send mail due to the following error: ' || sqlerrm);
---   end;
---end;
---/
---
---BEGIN
---    SEND_MAIL_TEST.MAIL_TEST('joemesoto@gmail', 'Test', 'Test');
---END;
---
---exec  SEND_MAIL_TEST.MAIL_TEST('joemesoto@gmail', 'Test', 'Test');
-
 -- Table Elimination | Creation | Insertion
 --------------------------------------------------------------------------------------------------------------------------------
 -- USUARIOS Table
@@ -919,6 +793,7 @@ CREATE OR REPLACE PROCEDURE AGREGAR_CUENTA_BANCARIA (
     P_REPLY OUT VARCHAR2
 ) AS
     V_ID_USER  USUARIOS.ID_USER%TYPE := 0;
+    V_ID_CUENTA  CUENTAS.ID_CUENTA%TYPE := 0;
 BEGIN
     SELECT
         ID_USER
@@ -932,12 +807,25 @@ BEGIN
     IF V_ID_USER = 0 THEN
         P_REPLY := 'Usuario no existe';
     ELSE
-        INSERT INTO CUENTAS
-            (ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
-        VALUES
-            (P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
+        SELECT
+            ID_CUENTA
+        INTO
+            V_ID_CUENTA
+        FROM
+            USUARIOS
+        WHERE
+            IBAN = P_IBAN;
             
-        P_REPLY := 'Tarjeta agregada correctamente';
+        IF V_ID_CUENTA != 0 THEN
+            P_REPLY := 'Cuenta ya existe';
+        ELSE
+            INSERT INTO CUENTAS
+                (ID_USER, ID_DIVISA, ID_MOVIMIENTO, IBAN, SALDO_TOTAL,  SALDO_ACTUAL, SALDO_RETENIDO, CREDITO)
+            VALUES
+                (P_ID_USER, P_ID_DIVISA, P_ID_MOVIMIENTO, P_IBAN, P_SALDO_TOTAL,  P_SALDO_ACTUAL, P_SALDO_RETENIDO, P_CREDITO);
+                
+            P_REPLY := 'Tarjeta agregada correctamente';
+        END IF;
     END IF;
 END;
 
@@ -1162,6 +1050,67 @@ BEGIN
     CLOSE P_FACTURA;  
 END;
 
+-- CARGAR_HISTORIAL_TRANSACCIONES Stored Procedure 
+----------------------------------------------------------
+CREATE OR REPLACE PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
+    P_ID_USER       IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
+    P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
+    P_TRANSACCIONES OUT SYS_REFCURSOR,
+    P_REPLY         OUT VARCHAR2
+) AS
+    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
+BEGIN
+    SELECT --Hacer una funcion 
+        ID_USER
+    INTO V_ID_USER
+    FROM
+        USUARIOS
+    WHERE
+        ID_USER = P_ID_USER;
+
+    IF V_ID_USER = 0 THEN
+        P_REPLY := 'Usuario no existe';
+    ELSE
+        OPEN P_TRANSACCIONES FOR SELECT
+                                     *
+                                 FROM
+                                     HISTORIAL_TRANSACCIONES
+                                 WHERE
+                                         ID_CUENTA_ORIGEN = P_ID_CUENTA
+                                     OR  ID_CUENTA_DESTINO = P_ID_CUENTA;
+    END IF;
+END;
+
+DECLARE
+    -- PARAMETERS
+    P_ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE := 1;
+    P_ID_CUENTA HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE := 1;
+    P_TRANSACCIONES SYS_REFCURSOR;
+    P_REPLY VARCHAR2(200);
+    -- CURSOR
+    ID_TRANSACCION HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE;
+    ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE;
+    ID_CUENTA_ORIGEN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE;
+    ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE;
+    ID_STATUS HISTORIAL_TRANSACCIONES.ID_STATUS%TYPE;
+    MONTO HISTORIAL_TRANSACCIONES.MONTO%TYPE;
+    DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
+BEGIN
+    CARGAR_HISTORIAL_TRANSACCIONES(P_ID_USER, P_ID_CUENTA, P_TRANSACCIONES, P_REPLY);
+
+    DBMS_OUTPUT.PUT_LINE(P_REPLY);
+    
+    LOOP
+        FETCH P_TRANSACCIONES 
+        INTO ID_TRANSACCION, ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION;
+        EXIT WHEN P_TRANSACCIONES%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ID_TRANSACCION || ID_USER || ID_CUENTA_ORIGEN || ID_CUENTA_DESTINO || ID_STATUS || MONTO || DESCRIPCION);
+    END LOOP;
+    
+    CLOSE P_TRANSACCIONES;  
+END;
+
+
 -- PAGAR_FACTURA Stored Procedure 
 ----------------------------------------------------------
 CREATE OR REPLACE PROCEDURE PAGAR_FACTURA ( --Need to check parammeters
@@ -1259,65 +1208,6 @@ BEGIN
 
 END;
 
--- CARGAR_HISTORIAL_TRANSACCIONES Stored Procedure 
-----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE CARGAR_HISTORIAL_TRANSACCIONES (
-    P_ID_USER       IN HISTORIAL_TRANSACCIONES.ID_USER%TYPE,
-    P_ID_CUENTA     IN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE,
-    P_TRANSACCIONES OUT SYS_REFCURSOR,
-    P_REPLY         OUT VARCHAR2
-) AS
-    V_ID_USER CUENTAS.ID_USER%TYPE := 0;
-BEGIN
-    SELECT --Hacer una funcion 
-        ID_USER
-    INTO V_ID_USER
-    FROM
-        USUARIOS
-    WHERE
-        ID_USER = P_ID_USER;
-
-    IF V_ID_USER = 0 THEN
-        P_REPLY := 'Usuario no existe';
-    ELSE
-        OPEN P_TRANSACCIONES FOR SELECT
-                                     *
-                                 FROM
-                                     HISTORIAL_TRANSACCIONES
-                                 WHERE
-                                         ID_CUENTA_ORIGEN = P_ID_CUENTA
-                                     OR  ID_CUENTA_DESTINO = P_ID_CUENTA;
-    END IF;
-END;
-
-DECLARE
-    -- PARAMETERS
-    P_ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE := 1;
-    P_ID_CUENTA HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE := 1;
-    P_TRANSACCIONES SYS_REFCURSOR;
-    P_REPLY VARCHAR2(200);
-    -- CURSOR
-    ID_TRANSACCION HISTORIAL_TRANSACCIONES.ID_TRANSACCION%TYPE;
-    ID_USER HISTORIAL_TRANSACCIONES.ID_USER%TYPE;
-    ID_CUENTA_ORIGEN HISTORIAL_TRANSACCIONES.ID_CUENTA_ORIGEN%TYPE;
-    ID_CUENTA_DESTINO HISTORIAL_TRANSACCIONES.ID_CUENTA_DESTINO%TYPE;
-    ID_STATUS HISTORIAL_TRANSACCIONES.ID_STATUS%TYPE;
-    MONTO HISTORIAL_TRANSACCIONES.MONTO%TYPE;
-    DESCRIPCION HISTORIAL_TRANSACCIONES.DESCRIPCION%TYPE;
-BEGIN
-    CARGAR_HISTORIAL_TRANSACCIONES(P_ID_USER, P_ID_CUENTA, P_TRANSACCIONES, P_REPLY);
-
-    DBMS_OUTPUT.PUT_LINE(P_REPLY);
-    
-    LOOP
-        FETCH P_TRANSACCIONES 
-        INTO ID_TRANSACCION, ID_USER, ID_CUENTA_ORIGEN, ID_CUENTA_DESTINO, ID_STATUS, MONTO, DESCRIPCION;
-        EXIT WHEN P_TRANSACCIONES%NOTFOUND;
-        DBMS_OUTPUT.PUT_LINE(ID_TRANSACCION || ID_USER || ID_CUENTA_ORIGEN || ID_CUENTA_DESTINO || ID_STATUS || MONTO || DESCRIPCION);
-    END LOOP;
-    
-    CLOSE P_TRANSACCIONES;  
-END;
 
 -- TRANSFERENCIA Stored Procedure 
 ----------------------------------------------------------
